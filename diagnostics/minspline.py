@@ -1,3 +1,8 @@
+######
+# These functions calculate the minimum of a cubic spline.
+# The main function is `findsplinemin`.
+######
+
 ## Find minimum of expression of the form intercept x + sum(coeffs[i] (x - offsets[i])^3)
 import numpy as np
 from openest.models.curve import CubicSplineCurve
@@ -11,7 +16,7 @@ def quadratic(aa, bb, cc):
     points = np.array([one, two])
     seconds = np.sign(2 * aa * points + bb)
 
-    return points, seconds    
+    return points, seconds
 
 def findextremes(intercept, coeffs, offsets):
     # Finds where intercept + sum(3 coeffs[i] (x - offsets[i])^2) = 0
