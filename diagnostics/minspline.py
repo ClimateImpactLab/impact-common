@@ -1,6 +1,8 @@
 ######
 # These functions calculate the minimum of a cubic spline.
 # The main function is `findsplinemin`.
+#
+# HEre's more info!
 # But here's some new changes
 ######
 
