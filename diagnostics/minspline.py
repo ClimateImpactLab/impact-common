@@ -10,7 +10,7 @@
 import numpy as np
 from openest.models.curve import CubicSplineCurve
 
-def quadratic(aa, bb, cc):
+def quadratic_formula(aa, bb, cc):
     if bb**2 - 4 * aa * cc < 0:
         return np.array([]), np.array([])
 
