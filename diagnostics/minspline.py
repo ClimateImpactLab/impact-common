@@ -3,6 +3,7 @@
 # The main function is `findsplinemin`.
 #
 # HEre's more info!
+# But here's some new changes
 ######
 
 ## Find minimum of expression of the form intercept x + sum(coeffs[i] (x - offsets[i])^3)
