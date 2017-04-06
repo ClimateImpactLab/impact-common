@@ -1,6 +1,7 @@
 ######
 # These functions calculate the minimum of a cubic spline.
 # The main function is `findsplinemin`.
+# But here's some new changes
 ######
 
 ## Find minimum of expression of the form intercept x + sum(coeffs[i] (x - offsets[i])^3)
