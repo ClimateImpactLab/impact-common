@@ -1,9 +1,11 @@
-from distutils.core import setup
+from setuptools import setup
 
-setup(
-    name='Impact-common',
-    version='0.1dev',
-    packages=['impactcommon'],
-    license='Creative Commons Attribution-Noncommercial-Share Alike license',
-    long_description=open('README.txt').read(),
+setup(name='impactcommon',
+      version='0.1',
+      description='Library of shared tools across the impact team.',
+      url='https://github.com/ClimateImpactLab/impact-common',
+      author='Impacts Team',
+      packages=['impactcommon'],
+      license='GNU v. 3',
+      long_description=open('README.md').read(),
 )
