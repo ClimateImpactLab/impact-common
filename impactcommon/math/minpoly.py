@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 def findpolymin(coeffs, minx, maxx):
@@ -11,7 +12,10 @@ def findpolymin(coeffs, minx, maxx):
     possibles = filter(lambda root: np.real_if_close(root).imag == 0 and np.real_if_close(root) >= minx and np.real_if_close(root) <= maxx, roots)
     possibles = possibles + [minx, maxx]
 
-    values = np.polyval(coeffs[::-1], np.real_if_close(possibles))
+    with warnings.catch_warnings(): # catch warning from using infs
+        warnings.simplefilter("ignore")
+        values = np.polyval(coeffs[::-1], np.real_if_close(possibles))
+        
     # polyval doesn't handle infs well
     if minx == -np.inf:
         if len(coeffs) % 2 == 1: # largest power is even
