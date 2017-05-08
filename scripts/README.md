@@ -6,10 +6,14 @@ new data, and upload the result back to Sacagawea.
 
 ## Setting up a local directory
 
-To prepare a local directory, run `./setup.sh DIR`, specifying a
-directory to prepare for syncing as `DIR`.  After you have done this,
-the `DIR` directory will hold the push and pull scripts, as well as an
-empty `synced` file which labels that directory as ready to be synced.
+To prepare a local directory, navigate to this `scripts` directory and run
+```
+./setup.sh DIR
+```
+specifying a directory to prepare for syncing as `DIR`.  After you
+have done this, the `DIR` directory will hold the push and pull
+scripts, as well as an empty `synced` file which labels that directory
+as ready to be synced.
 
 ## Pulling data from Sacagawea
 
