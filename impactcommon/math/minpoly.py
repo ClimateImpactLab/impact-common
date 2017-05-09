@@ -10,7 +10,7 @@ def findpolymin(coeffs, minx, maxx):
 
     # Filter out complex roots; note: have to apply real_if_close to individual values, not array until filtered
     possibles = filter(lambda root: np.real_if_close(root).imag == 0 and np.real_if_close(root) >= minx and np.real_if_close(root) <= maxx, roots)
-    possibles = possibles + [minx, maxx]
+    possibles = np.real_if_close(possibles) + [minx, maxx]
 
     with warnings.catch_warnings(): # catch warning from using infs
         warnings.simplefilter("ignore")
