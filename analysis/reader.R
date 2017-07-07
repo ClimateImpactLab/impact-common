@@ -14,5 +14,8 @@ get.variable.region <- function(filepath, variable, region) {
     regions <- ncvar_get(nc, 'regions')
     nc_close(nc)
 
+    if (length(dim(data)) == 1)
+        return(data)
+
     return(data[regions == region,])
 }
