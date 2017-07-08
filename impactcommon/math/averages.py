@@ -107,6 +107,15 @@ class BartlettAverager(KernelAverager):
     def __init__(self, values, length=5):
         super(BartlettAverager, self).__init__(values, np.flipud(np.arange(length) + 1.))
 
+def translate(cls, length, data):
+    avg = cls([], length)
+    result = []
+    for datum in data:
+        avg.update(datum)
+        result.append(avg.get())
+
+    return result
+
 if __name__ == '__main__':
     for cls in [MeanAverager, MedianAverager, BucketAverager, KernelMeanAverager, BartlettAverager]:
         print cls
