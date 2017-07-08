@@ -1,5 +1,7 @@
 library(ncdf4)
 
+region.index <- NULL
+
 get.variable <- function(filepath, variable) {
     nc <- nc_open(filepath)
     data <- ncvar_get(nc, variable)
@@ -8,7 +10,7 @@ get.variable <- function(filepath, variable) {
     return(data)
 }
 
-get.variable.region <- function(filepath, variable, region) {
+get.variable.region <- function(filepath, variable, region=NULL) {
     nc <- nc_open(filepath)
     data <- ncvar_get(nc, variable)
     regions <- ncvar_get(nc, 'regions')
@@ -17,5 +19,10 @@ get.variable.region <- function(filepath, variable, region) {
     if (length(dim(data)) == 1)
         return(data)
 
-    return(data[regions == region,])
+    if (is.null(region))
+        return(data[region.index,])
+    else {
+        region.index <<- which(regions == region)
+        return(data[regions == region,])
+    }
 }

@@ -24,9 +24,10 @@ class MemoryAverager(RunningStatistic):
 
         if len(values) >= length:
             self.values = np.array(values[-length:])
+            self.write_index = 0 # overwrite at this location next time
         else:
             self.values = list(values) # Keep as a list
-        self.write_index = None # overwrite at this location next time
+            self.write_index = None # append next time
 
     def update(self, value):
         if self.write_index is not None:

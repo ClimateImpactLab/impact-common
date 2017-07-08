@@ -7,14 +7,16 @@ if (args[1] == 'full') {
     targetdir <- "/shares/gcp/outputs/mortality/impacts-harvester/median/rcp85/CCSM4/low/SSP4" #args[1]
     basename <- "global_interaction_Tmean-POLY-4-AgeSpec-oldest" #args[2]
     region <- "global" #args[3]
-    costs.targetdir <- "/shares/gcp/outputs/mortality/impacts-harvester2/single/rcp85/CCSM4/low/SSP4"
+    costs.targetdir <- "/shares/gcp/outputs/mortality/impacts-harvester3/single/rcp85/CCSM4/low/SSP4"
     suffix <- '-aggregated'
+    use.costs.region <- T
 } else {
-    targetdir <- "/shares/gcp/outputs/mortality/impacts-harvester/median/rcp85/CCSM4/low/SSP4" #args[1]
+    targetdir <- "/shares/gcp/outputs/mortality/impacts-harvester2/median-no-gm/rcp85/CCSM4/low/SSP4" #args[1]
     basename <- "global_interaction_Tmean-POLY-4-AgeSpec-oldest" #args[2]
     region <- "IND.33.542.2153" #args[3]
-    costs.targetdir <- "/shares/gcp/temp-harvester/single/rcp85/CCSM4/low/SSP4"
+    costs.targetdir <- "/shares/gcp/outputs/mortality/impacts-harvester2/single-no-gm/rcp85/CCSM4/low/SSP4"
     suffix <- ''
+    use.costs.region <- F
 }
 
 fileregion <- region
@@ -27,8 +29,13 @@ adapted <- 1e5 * get.variable.region(file.path(costs.targetdir, paste0(basename,
 noadapt <- 1e5 * get.variable.region(file.path(targetdir, paste0(basename, "-noadapt", suffix, ".nc4")), 'rebased', fileregion)
 incadapt <- 1e5 * get.variable.region(file.path(targetdir, paste0(basename, "-incadapt", suffix, ".nc4")), 'rebased', fileregion)
 histclim <- 1e5 * get.variable.region(file.path(targetdir, paste0(basename, "-histclim", suffix, ".nc4")), 'rebased', fileregion)
-costs.lb <- get.variable.region(file.path(costs.targetdir, paste0(basename, "-costs", suffix, ".nc4")), 'costs_lb', fileregion)
-costs.ub <- get.variable.region(file.path(costs.targetdir, paste0(basename, "-costs", suffix, ".nc4")), 'costs_ub', fileregion)
+if (use.costs.region) {
+    costs.lb <- get.variable.region(file.path(costs.targetdir, paste0(basename, "-costs", suffix, ".nc4")), 'costs_lb', fileregion)
+    costs.ub <- get.variable.region(file.path(costs.targetdir, paste0(basename, "-costs", suffix, ".nc4")), 'costs_ub', fileregion)
+} else {
+    costs.lb <- get.variable.region(file.path(costs.targetdir, paste0(basename, "-costs", suffix, ".nc4")), 'costs_lb')
+    costs.ub <- get.variable.region(file.path(costs.targetdir, paste0(basename, "-costs", suffix, ".nc4")), 'costs_ub')
+}
 
 df <- data.frame(year=rep(years, 4),
                  values=c(adapted - histclim, noadapt - c(histclim[years < 2015], rep(histclim[years == 2015], sum(years >= 2015))), incadapt - histclim, adapted - histclim + (costs.lb + costs.ub) / 2),
