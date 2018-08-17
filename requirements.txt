@@ -1,0 +1,4 @@
+numpy
+pandas
+metacsv
+git+https://github.com/ClimateImpactLab/impactlab-tools.git@master
