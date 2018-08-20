@@ -1,7 +1,7 @@
-import impactcommon
+from impactcommon.exogenous_economy import gdppc
 
-provider_low = GDPpcProvider('low', 'SSP3')
-provider_high = GDPpcProvider('high', 'SSP3')
+provider_low = gdppc.GDPpcProvider('low', 'SSP3')
+provider_high = gdppc.GDPpcProvider('high', 'SSP3')
 
 # ZWE exists in both IAMs: check that correct and different
 
