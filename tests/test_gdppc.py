@@ -1,3 +1,4 @@
+import pytest
 from impactcommon.exogenous_economy import gdppc
 
 provider_low = gdppc.GDPpcProvider('low', 'SSP3')
@@ -30,9 +31,9 @@ def test_xyz_high():
 def helper(provider, region, in2010, in2050, in2051):
     assert provider.get_startyear() <= 2010
     series = provider.get_timeseries(region)
-    assert series[2010 - provider.get_startyear()] == in2010
-    assert series[2050 - provider.get_startyear()] == in2050
-    assert series[2051 - provider.get_startyear()] == in2051
+    assert series[2010 - provider.get_startyear()] == pytest.approx(in2010)
+    assert series[2050 - provider.get_startyear()] == pytest.approx(in2050)
+    assert series[2051 - provider.get_startyear()] == pytest.approx(in2051)
 
     
 
