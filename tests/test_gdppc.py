@@ -1,4 +1,5 @@
-import pytest
+import os, pytest
+from impactlab_tools.utils import files
 from impactcommon.exogenous_economy import gdppc
 
 provider_low = gdppc.GDPpcProvider('low', 'SSP3')
@@ -23,11 +24,17 @@ def test_abw_high():
 # XYZ is not a country; check that starts same and grows differently
     
 def test_xyz_low():
-    helper(provider_low, 'XYZ.1.2', 7065.37128841, 13733.1439925, 13850.0256535)
+    if files.sharedpath('testing')[:11] == '/shares/gcp':
+        helper(provider_low, 'XYZ.1.2', 7065.37128841, 12309.8299344, 12417.4055742)
+    else:
+        helper(provider_low, 'XYZ.1.2', 415.320976851, 1254.179869326625, 1269.0353748748823)
 
 def test_xyz_high():
-    helper(provider_high, 'XYZ.1.2', 7065.37128841, 16281.0359747, 16496.9435173)
-    
+    if files.sharedpath('testing')[:11] == '/shares/gcp':
+        helper(provider_high, 'XYZ.1.2', 7065.37128841, 15837.3384374, 16024.4588895)
+    else:
+        helper(provider_high, 'XYZ.1.2', 415.320976851, 1653.5117662281498, 1711.9155483103712)
+        
 def helper(provider, region, in2010, in2050, in2051):
     assert provider.get_startyear() <= 2010
     series = provider.get_timeseries(region)

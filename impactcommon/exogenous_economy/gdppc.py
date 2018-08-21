@@ -42,7 +42,7 @@ class GDPpcProvider(provider.SpaceTimeProvider):
         df_growth['yearindex'] = np.int_((df_growth.year - baseline_year) / 5)
         self.df_growth_this = df_growth.loc[(df_growth.model == iam) & (df_growth.scenario == ssp)]
         self.df_growth_anyiam = df_growth.loc[(df_growth.scenario == ssp)].groupby(['iso', 'year']).median()
-        self.growth_global = df_growth.loc[(df_growth.scenario == ssp) & (df_growth.model == iam) & (df_growth.iso == 'mean')]
+        self.growth_global = df_growth.loc[(df_growth.scenario == ssp) & (df_growth.model == iam)].groupby(['year']).median()
 
         # Load the nightlights
         self.df_nightlights = metacsv.read_csv(files.sharedpath(nightlights_filepath))
