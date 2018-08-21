@@ -23,10 +23,10 @@ def test_abw_high():
 # XYZ is not a country; check that starts same and grows differently
     
 def test_xyz_low():
-    helper(provider_low, 'XYZ.1.2', 7065.37128841, 12746.22361976, 12873.57291254)
+    helper(provider_low, 'XYZ.1.2', 7065.37128841, 13733.1439925, 13850.0256535)
 
 def test_xyz_high():
-    helper(provider_high, 'XYZ.1.2', 7065.37128841, 14553.73370414, 14770.53335484)
+    helper(provider_high, 'XYZ.1.2', 7065.37128841, 16281.0359747, 16496.9435173)
     
 def helper(provider, region, in2010, in2050, in2051):
     assert provider.get_startyear() <= 2010
@@ -42,4 +42,5 @@ if __name__ == '__main__':
     test_abw_high()
     test_xyz_low()
     test_xyz_high()
+    print "All tests passed."
 
