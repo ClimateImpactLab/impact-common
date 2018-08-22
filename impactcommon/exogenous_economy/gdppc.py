@@ -10,7 +10,7 @@ baseline_filepath = 'social/baselines/gdppc-merged-nohier.csv'
 nightlights_filepath = 'social/baselines/nightlight_weight.csv'
 baseline_year = 2010
 
-class GDPpcProvider(provider.SpaceTimeProvider):
+class GDPpcProvider(provider.BySpaceProvider):
     """
     GDPpcProvider returns timeseries of GDPpc for a given IAM and SSP.
 
@@ -102,7 +102,7 @@ class GDPpcProvider(provider.SpaceTimeProvider):
                 return df
         
         return df_global
-
+    
 if __name__ == '__main__':
     # Test the provider
     provider = GDPpcProvider('low', 'SSP3')
