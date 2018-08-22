@@ -1,5 +1,8 @@
 import os, pytest
 from impactlab_tools.utils import files
+import impactcommon
+print dir(impactcommon)
+
 from impactcommon.exogenous_economy import gdppc
 
 provider_low = gdppc.GDPpcProvider('low', 'SSP3')
