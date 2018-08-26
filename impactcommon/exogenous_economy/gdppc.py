@@ -57,6 +57,8 @@ class GDPpcProvider(provider.BySpaceProvider):
         ratio = self.df_nightlights.loc[self.df_nightlights.hierid == hierid].gdppc_ratio
         if len(ratio) == 0:
             return iso_gdppcs # Assume all combined
+        if np.isnan(ratio.values[0]) or ratio.values[0] == 0:
+            return 0.8 * iso_gdppcs
         
         return iso_gdppcs * ratio.values[0]
 

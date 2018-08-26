@@ -25,7 +25,7 @@ class BySpaceTimeProvider(object):
 class BySpaceTimeFromSpaceProvider(BySpaceTimeProvider):
     def __init__(self, provider):
         self.provider = provider
-        super(BySpaceTimeFromTimeProvider, self).__init__(provider.iam, provider.ssp)
+        super(BySpaceTimeFromSpaceProvider, self).__init__(provider.iam, provider.ssp)
 
     def reset(self):
         self.cache = {}
@@ -39,3 +39,9 @@ class BySpaceTimeFromSpaceProvider(BySpaceTimeProvider):
             return self.cache[region][0]
             
         return self.cache[region][time - startyear]
+
+    def get_startyear(self):
+        return self.provider.get_startyear()
+
+    def get_timeseries(self, region):
+        return self.provider.get_timeseries(region)
