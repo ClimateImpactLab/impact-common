@@ -107,8 +107,20 @@ class GDPpcProvider(provider.BySpaceProvider):
     
 if __name__ == '__main__':
     # Test the provider
+    import time
+
+    time0 = time.time()
     provider = GDPpcProvider('low', 'SSP3')
-    print provider.get_startyear()
-    print provider.get_timeseries('ZWE.2.2')
-    print provider.get_timeseries('ABW')
-    print provider.get_timeseries('XYZ.1.2')
+    df = metacsv.read_csv(files.sharedpath("regions/hierarchy_metacsv.csv"))
+    time1 = time.time()
+    print "Load time: %s seconds" % (time1 - time0)
+
+    for ii in np.where(df.is_terminal)[0]:
+        xx = provider.get_timeseries(df.iloc[ii, 0])
+    time2 = time.time()
+    print "First pass: %s seconds" % (time2 - time1)
+
+    for ii in np.where(df.is_terminal)[0]:
+        xx = provider.get_timeseries(df.iloc[ii, 0])
+    time3 = time.time()
+    print "Second pass: %s seconds" % (time3 - time2)
