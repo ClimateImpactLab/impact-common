@@ -7,7 +7,7 @@ import provider
 ## Static configration
 growth_filepath = 'social/baselines/gdppc-growth.csv'
 baseline_filepath = 'social/baselines/gdppc-merged-nohier.csv'
-nightlights_filepath = 'social/baselines/nightlight_weight.csv'
+nightlights_filepath = 'social/baselines/nightlight_weight_normalized.csv'
 baseline_year = 2010
 
 class GDPpcProvider(provider.BySpaceProvider):
