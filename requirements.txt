@@ -1,4 +1,6 @@
 numpy
 pandas
+xarray
 metacsv
-git+https://github.com/ClimateImpactLab/impactlab-tools.git@master
+openest
+impactlab-tools
