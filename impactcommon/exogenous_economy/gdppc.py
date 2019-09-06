@@ -85,8 +85,8 @@ class GDPpcProvider(provider.BySpaceProvider):
             for year in range(baseline_year + 1, 2100 + 1):
                 yearindex = int((year - 1 - baseline_year) / 5) # Last year's growth
                 growthrate = df_growth.loc[df_growth.yearindex == yearindex].growth.values
-                new_gdppcs = gdppcs[-1] * growthrate
-                gdppcs.append(new_gdppcs.item())
+                new_gdppc = gdppcs[-1] * growthrate
+                gdppcs.append(new_gdppc.item())
 
             self.cached_iso_gdppcs[iso] = np.array(gdppcs)
             
