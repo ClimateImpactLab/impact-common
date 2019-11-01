@@ -11,5 +11,7 @@ setup(name='impactcommon',
       long_description_content_type='text/markdown',
       install_requires=['numpy', 'pandas', 'xarray', 'metacsv', 'openest',
                         'impactlab-tools'],
-      tests_require=['pytest'],
+      extras_require={
+            'test': ['pytest'],
+      }
       )
