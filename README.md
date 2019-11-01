@@ -1,7 +1,10 @@
 # impact-common
+
+[![Build Status](https://travis-ci.org/ClimateImpactLab/impact-common.svg?branch=master)](https://travis-ci.org/ClimateImpactLab/impact-common)
+
 Common tools for estimating impact functions.
 
-# Installation
+## Installation
 
 Run the following:
 ```
