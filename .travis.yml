@@ -30,4 +30,3 @@ install:
 script:
   - echo "shareddir: `pwd`/tests/data" > ../server.yml
   - pytest
-  
