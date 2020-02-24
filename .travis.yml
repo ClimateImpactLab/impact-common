@@ -3,9 +3,9 @@ language: python
 matrix:
   fast_finish: true
   include:
-    - python: 2.7
+    - python: 3.6
       env:
-        - CONDA_ENV=py27
+        - CONDA_ENV=py36
         - JOB_OS=Linux
 
 before_install:
