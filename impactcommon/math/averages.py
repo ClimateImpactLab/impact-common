@@ -118,28 +118,28 @@ def translate(cls, length, data):
 
 if __name__ == '__main__':
     for cls in [MeanAverager, MedianAverager, BucketAverager, KernelMeanAverager, BartlettAverager]:
-        print cls
-        avg = cls(range(4), 5)
-        print avg.get(), (0 + 1 + 2 + 3) / 4.
+        print(cls)
+        avg = cls(list(range(4)), 5)
+        print(avg.get(), (0 + 1 + 2 + 3) / 4.)
         avg.update(4)
-        print avg.get(), (0 + 1 + 2 + 3 + 4) / 5.
+        print(avg.get(), (0 + 1 + 2 + 3 + 4) / 5.)
         avg.update(5)
-        print avg.get(), (1 + 2 + 3 + 4 + 5) / 5.
+        print(avg.get(), (1 + 2 + 3 + 4 + 5) / 5.)
 
     clses = [MeanAverager, MedianAverager, BucketAverager, KernelMeanAverager, BartlettAverager]
     averages = [cls(np.zeros(25), 30) for cls in clses]
     averages[2] = BucketAverager(np.zeros(25), 15)
 
-    print "input,mean,median,bucket,mean2,bartlett"
+    print("input,mean,median,bucket,mean2,bartlett")
     
     for ii in range(5):
         for average in averages:
             average.update(0.)
-        print '0,' + ','.join([str(average.get()) for average in averages])
+        print('0,' + ','.join([str(average.get()) for average in averages]))
     
     for ii in range(35):
         for average in averages:
             average.update(1.)
-        print '1,' + ','.join([str(average.get()) for average in averages])
+        print('1,' + ','.join([str(average.get()) for average in averages]))
 
     

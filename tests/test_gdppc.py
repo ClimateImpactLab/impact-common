@@ -49,5 +49,5 @@ if __name__ == '__main__':
     test_abw_high()
     test_xyz_low()
     test_xyz_high()
-    print "All tests passed."
+    print("All tests passed.")
 

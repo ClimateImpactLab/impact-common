@@ -9,7 +9,7 @@ def findpolymin(coeffs, minx, maxx):
     roots = np.roots(derivcoeffs[::-1])
 
     # Filter out complex roots; note: have to apply real_if_close to individual values, not array until filtered
-    possibles = filter(lambda root: np.real_if_close(root).imag == 0 and np.real_if_close(root) >= minx and np.real_if_close(root) <= maxx, roots)
+    possibles = [root for root in roots if np.real_if_close(root).imag == 0 and np.real_if_close(root) >= minx and np.real_if_close(root) <= maxx]
     possibles = list(np.real_if_close(possibles)) + [minx, maxx]
 
     with warnings.catch_warnings(): # catch warning from using infs
@@ -31,8 +31,8 @@ def findpolymin(coeffs, minx, maxx):
     return possibles[index]
 
 if __name__ == '__main__':
-    print findpolymin([0, 0, -3, 1, 2], -np.inf, np.inf)
-    print findpolymin([0, 0, -3, 1, 2], 0, np.inf)
-    print findpolymin([0, 0, -3, 1, 2], -1, 1)
+    print(findpolymin([0, 0, -3, 1, 2], -np.inf, np.inf))
+    print(findpolymin([0, 0, -3, 1, 2], 0, np.inf))
+    print(findpolymin([0, 0, -3, 1, 2], -1, 1))
 
     

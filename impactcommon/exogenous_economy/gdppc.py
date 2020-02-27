@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import metacsv
 from impactlab_tools.utils import files
-import provider
+from . import provider
 
 ## Static configration
 growth_filepath = 'social/baselines/gdppc-growth.csv'
@@ -114,14 +114,14 @@ if __name__ == '__main__':
     provider = GDPpcProvider('low', 'SSP3')
     df = metacsv.read_csv(files.sharedpath("regions/hierarchy_metacsv.csv"))
     time1 = time.time()
-    print "Load time: %s seconds" % (time1 - time0)
+    print("Load time: %s seconds" % (time1 - time0))
 
     for ii in np.where(df.is_terminal)[0]:
         xx = provider.get_timeseries(df.iloc[ii, 0])
     time2 = time.time()
-    print "First pass: %s seconds" % (time2 - time1)
+    print("First pass: %s seconds" % (time2 - time1))
 
     for ii in np.where(df.is_terminal)[0]:
         xx = provider.get_timeseries(df.iloc[ii, 0])
     time3 = time.time()
-    print "Second pass: %s seconds" % (time3 - time2)
+    print("Second pass: %s seconds" % (time3 - time2))
