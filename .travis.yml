@@ -25,6 +25,7 @@ before_install:
 install:
   - conda env create -q -f ci/requirements-$CONDA_ENV.yml
   - source activate test_env
+  - export IMPERICS_SHAREDDIR=/tmp
   - pip install .[test]
 
 script:
