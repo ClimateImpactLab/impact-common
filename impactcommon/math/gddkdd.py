@@ -43,4 +43,4 @@ mins and maxs are numpy arrays; threshold is in the same units."""
     dd_above = above_threshold(mins, maxs, kdd_start)
     dd_lower = dd_lowup - dd_above
 
-    return (dd_lower, dd_above)
+    return dd_lower, dd_above
