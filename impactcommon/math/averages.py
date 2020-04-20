@@ -93,6 +93,16 @@ class KernelAverager(MemoryAverager):
             olderkernel = self.kernel[:-self.write_index]
             return np.dot(recentkernel, self.values[:self.write_index]) + np.dot(olderkernel, self.values[self.write_index:])
 
+    def get_calculation(self):
+        if self.write_index is None or self.write_index == 0:
+            subkernel = self.kernel[-len(self.values):]
+            return ' + '.join(["{0} * {1}".format(subkernel[ii] / np.sum(subkernel), self.values[ii]) for ii in range(len(subkernel))])
+        else:
+            recentkernel = self.kernel[-self.write_index:]
+            olderkernel = self.kernel[:-self.write_index]
+            return ' + '.join(["{0} * {1}".format(recentkernel[ii], self.values[ii]) for ii in range(len(recentkernel))]) + ' + '.join(["{0} * {1}".format(olderkernel[ii], self.values[self.write_index + ii]) for ii in range(len(olderkernel))])
+        
+
 class KernelMeanAverager(KernelAverager):
     """
     Kernel-based implementation of a simple running average.
