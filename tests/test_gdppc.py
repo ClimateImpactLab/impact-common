@@ -1,6 +1,12 @@
-import os, pytest
-from impactlab_tools.utils import files
+import os
+import pytest
+if not os.getenv("IMPERICS_SHAREDDIR"):
+    pytest.skip(
+        "skipping test as no IMPERICS_SHAREDDIR environment variable set",
+        allow_module_level=True
+    )
 from impactcommon.exogenous_economy import gdppc
+from impactlab_tools.utils import files
 
 provider_low = gdppc.GDPpcProvider('low', 'SSP3')
 provider_high = gdppc.GDPpcProvider('high', 'SSP3')
