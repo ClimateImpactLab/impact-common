@@ -1,6 +1,6 @@
 import numpy as np
 import numpy.testing as npt
-from impactcommon.math.minspline import findextremes, findsplinemin
+from impactcommon.math.minmaxspline import findextremes, findsplinemin, findsplinemax
 
 
 def test_findextremes():
@@ -41,6 +41,28 @@ def test_findsplinemin():
         ],
         minx=10,
         maxx=25,
+    )
+
+    npt.assert_allclose([actual], [expected])
+
+
+def test_findsplinemax():
+    """Simple test of findsplinemax output"""
+    expected = 32
+
+    actual = findsplinemax(
+        knots=[-12, -7, 0, 10, 18, 23, 28, 33],
+        coeffs=[
+            -0.088404222535054311,
+            0.00044585141069226897,
+            -0.0013680191382785048,
+            0.0015570001425749581,
+            -0.00014956629970445078,
+            -0.0036869690281538109,
+            0.011688014471165964,
+        ],
+        minx=0,
+        maxx=32,
     )
 
     npt.assert_allclose([actual], [expected])
