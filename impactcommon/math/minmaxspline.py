@@ -28,34 +28,30 @@ def findextremes(intercept, coeffs, offsets):
 
     return quadratic(aa, bb, cc)
 
-def findminmaxwithin(intercept, coeffs, offsets, minx, maxx):
+def findminwithin(intercept, coeffs, offsets, minx, maxx):
     points, seconds = findextremes(intercept, coeffs, offsets)
     if len(points) == 0:
-        return points, points
+        return points
 
-    return (points[(seconds > 0) * (points >= minx) * (points <= maxx)],
-            points[(seconds < 0) * (points >= minx) * (points <= maxx)])
+    return points[(seconds > 0) * (points >= minx) * (points <= maxx)]
 
-def findsplineminmax(knots, coeffs, minx, maxx):
+def findsplinemin(knots, coeffs, minx, maxx):
     allpoints = []
     knotKm1 = ([], []) # coeffs, offsets for x > knots[-2]
     knotK = ([], []) # coeffs, offsets for x > knots[-1]
     for kk in range(1, len(knots)-1):
-        minp, maxp = findminmaxwithin(coeffs[0], coeffs[1:kk+1], knots[0:kk], knots[kk-1], knots[kk])
-        allpoints.extend(minp)
-        allpoints.extend(maxp)
+        points = findminwithin(coeffs[0], coeffs[1:kk+1], knots[0:kk], knots[kk-1], knots[kk])
+        allpoints.extend(points)
 
         knotKm1[0].extend([coeffs[kk], -coeffs[kk] * (knots[-1] - knots[kk-1]) / (knots[-1] - knots[-2])])
         knotKm1[1].extend([knots[kk-1], knots[-2]])
         knotK[0].extend([coeffs[kk], -coeffs[kk] * (knots[-1] - knots[kk-1]) / (knots[-1] - knots[-2]), coeffs[kk] * (knots[-2] - knots[kk-1]) / (knots[-1] - knots[-2])])
         knotK[1].extend([knots[kk-1], knots[-2], knots[-1]])
 
-    minp, maxp = findminmaxwithin(coeffs[0], knotKm1[0], knotKm1[1], knots[-2], knots[-1])
-    allpoints.extend(minp)
-    allpoints.extend(maxp)
-    minp, maxp = findminmaxwithin(coeffs[0], knotK[0], knotK[1], knots[-1], np.inf)
-    allpoints.extend(minp)
-    allpoints.extend(maxp)
+    points = findminwithin(coeffs[0], knotKm1[0], knotKm1[1], knots[-2], knots[-1])
+    allpoints.extend(points)
+    points = findminwithin(coeffs[0], knotK[0], knotK[1], knots[-1], np.inf)
+    allpoints.extend(points)
 
     allpoints.extend(knots) # Could also be edge-points
 
@@ -64,18 +60,13 @@ def findsplineminmax(knots, coeffs, minx, maxx):
     allpoints = list(allpoints[(allpoints > minx) * (allpoints < maxx)])
     allpoints.extend([minx, maxx])
 
-    # Determine the true lowest and highest
+    # Determine the true lowest
     curve = CubicSplineCurve(knots, coeffs)
-    y = curve(np.array(allpoints))
-    minpt = np.argmin(y)
-    maxpt = np.argmax(y)
+    minpt = np.argmin(curve(np.array(allpoints)))
 
-    return allpoints[minpt], allpoints[maxpt]
+    return allpoints[minpt]
 
-def findsplinemin(*args, **kwargs):
-    x, _ = findsplineminmax(*args, **kwargs)
-    return x
 
-def findsplinemax(*args, **kwargs):
-    _, x = findsplineminmax(*args, **kwargs)
+def findsplinemax(knots, coeffs, minx, maxx):
+    x = findsplinemin(knots, -np.asarray(coeffs), minx, maxx)
     return x
