@@ -87,11 +87,12 @@ class KernelAverager(MemoryAverager):
     def get(self):
         if self.write_index is None or self.write_index == 0:
             subkernel = self.kernel[-len(self.values):]
-            return np.dot(subkernel, self.values) / np.sum(subkernel)
+            out = np.dot(subkernel, self.values) / np.sum(subkernel)
         else:
             recentkernel = self.kernel[-self.write_index:]
             olderkernel = self.kernel[:-self.write_index]
-            return np.dot(recentkernel, self.values[:self.write_index]) + np.dot(olderkernel, self.values[self.write_index:])
+            out = np.dot(recentkernel, self.values[:self.write_index]) + np.dot(olderkernel, self.values[self.write_index:])
+        return out.item()
 
     def get_calculation(self):
         if self.write_index is None or self.write_index == 0:
