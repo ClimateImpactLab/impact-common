@@ -44,14 +44,14 @@ class MeanAverager(MemoryAverager):
     Simple mean running average.
     """
     def get(self):
-        return np.mean(self.values)
+        return np.mean(self.values).item()
 
 class MedianAverager(MemoryAverager):
     """
     Simple median running average.
     """
     def get(self):
-        return np.median(self.values)
+        return np.median(self.values).item()
 
 class BucketAverager(RunningStatistic):
     """
