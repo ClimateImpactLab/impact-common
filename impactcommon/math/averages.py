@@ -46,13 +46,6 @@ class MeanAverager(MemoryAverager):
     def get(self):
         return np.mean(self.values).item()
 
-class MedianAverager(MemoryAverager):
-    """
-    Simple median running average.
-    """
-    def get(self):
-        return np.median(self.values).item()
-
 class BucketAverager(RunningStatistic):
     """
     Bucket average, equivalent to an exponential kernel or Bayesian update.
