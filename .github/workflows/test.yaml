@@ -1,0 +1,28 @@
+name: Test
+
+on:
+  push:
+    branches:
+    - "*"
+
+jobs:
+  test:
+    runs-on: "ubuntu-latest"
+    defaults:
+      run:
+        shell: bash -l {0}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          activate-environment: test_env
+          environment-file: ci/requirements-py37.yaml
+      - name: Pip install
+        run: pip install .
+      - name: Conda environment info
+        run: |
+          conda info -a
+          conda list
+          conda config --show
+      - name: Test
+        run: pytest -v --pyargs impactcommon
