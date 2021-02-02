@@ -25,4 +25,4 @@ jobs:
           conda list
           conda config --show
       - name: Test
-        run: pytest -v --pyargs impactcommon
+        run: pytest -v
