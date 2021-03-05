@@ -1,7 +1,84 @@
 from unittest.mock import patch
+import pytest
 import numpy as np
 import pandas as pd
 from impactcommon.exogenous_economy import gdppc
+
+
+@pytest.fixture
+def support_dfs():
+    """Setup, return support baseline, growth, nightlight pd.DataFrame files
+    """
+    baseline_df = pd.DataFrame(
+        {
+            "year": [2010, 2010, 2010],
+            "model": [ "low", "low", "low"],  # "iam"
+            "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
+            "iso": ["foo", "bar", "foo"],
+            "value": np.arange(3, dtype=np.float64) + 1,
+        }
+    )
+    growth_df = pd.DataFrame(
+        {
+            "year": [2015, 2010, 2015, 2020],
+            "model": ["low", "low", "low", "high"],  # "iam"
+            "scenario": ["SSP3", "SSP3", "SSP3", "SSP3"],  # "ssp"
+            "iso": ["foo", "foo", "bar", "foo"],
+            "growth": np.arange(4, dtype=np.float64) + 1,
+        }
+    )
+    df_nightlights=pd.DataFrame(
+        {
+            "hierid" : ["fooSPAM"],
+            "gdppc_ratio" : [2.0],
+        }
+    )
+    return baseline_df, growth_df, df_nightlights
+
+
+@pytest.fixture
+def tmpsetup(tmpdir, support_dfs):
+    """Setup support CSV files in tmp directory for easy cleanup, without shareddir
+
+    Returns
+    -------
+        Absolute paths to baseline, growth, and nightlights CSVs in tmp directory.
+    """
+    baseline_df, growth_df, df_nightlights = support_dfs
+
+    gdppc_growth_path = tmpdir.join("gdppc-growth.csv")
+    gdppc_baseline_path = tmpdir.join("gdppc-baseline.csv")
+    nightlights_path = tmpdir.join("nightlights.csv")
+
+    baseline_df.to_csv(gdppc_baseline_path, index=False)
+    growth_df.to_csv(gdppc_growth_path, index=False)
+    df_nightlights.to_csv(nightlights_path, index=False)
+    return gdppc_baseline_path, gdppc_growth_path, nightlights_path
+
+
+@pytest.fixture
+def tmpsetup_shareddir(tmpdir, monkeypatch, support_dfs):
+    """Setup shareddir with files in tmp directory for cleanup
+
+    The environment variable IMPERICS_SHAREDDIR is monkeypatched with shareddir
+    path.
+
+    Input files are kept in traditional shareddir paths: 'social/baselines/gdppc-growth.csv',
+    'social/baselines/gdppc-merged-nohier.csv', 'social/baselines/nightlight_weight_normalized.csv'.
+    """
+    baseline_df, growth_df, df_nightlights = support_dfs
+
+    shareddir = tmpdir.mkdir("shared")
+    monkeypatch.setenv("IMPERICS_SHAREDDIR", str(shareddir))
+
+    baseline_dir = shareddir.mkdir("social").mkdir("baselines")
+    gdppc_growth_path = baseline_dir.join("gdppc-growth.csv")
+    gdppc_baseline_path = baseline_dir.join("gdppc-merged-nohier.csv")
+    nightlights_path = baseline_dir.join("nightlight_weight_normalized.csv")
+
+    baseline_df.to_csv(gdppc_baseline_path, index=False)
+    growth_df.to_csv(gdppc_growth_path, index=False)
+    df_nightlights.to_csv(nightlights_path, index=False)
 
 
 def test_split_baseline():
@@ -217,104 +294,36 @@ def test_GdpProvider_get_iso_timeseries():
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_read_gdpprovider_shareddir(monkeypatch, tmpdir):
+def test_read_gdpprovider_shareddir(tmpsetup_shareddir):
     """
     Integration test for read_gdpprovider with shareddirs
 
     Tests that files are read and cleaned from shareddir paths
     such that we get a timeseries from the provider, given a hierid.
     """
-    shareddir = tmpdir.mkdir("shared")
-    monkeypatch.setenv("IMPERICS_SHAREDDIR", str(shareddir))
-
-    baseline_dir = shareddir.mkdir("social").mkdir("baselines")
-    gdppc_growth_path = baseline_dir.join("gdppc-growth.csv")
-    gdppc_baseline_path = baseline_dir.join("gdppc-merged-nohier.csv")
-    nightlights_path = baseline_dir.join("nightlight_weight_normalized.csv")
-
-    # Data to dump to temp files.
-    baseline_df = pd.DataFrame(
-        {
-            "year": [2010, 2010, 2010],
-            "model": [ "low", "low", "low"],  # "iam"
-            "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
-            "iso": ["foo", "bar", "foo"],
-            "value": np.arange(3, dtype=np.float64) + 1,
-        }
-    )
-    growth_df = pd.DataFrame(
-        {
-            "year": [2015, 2010, 2015, 2020],
-            "model": ["low", "low", "low", "high"],  # "iam"
-            "scenario": ["SSP3", "SSP3", "SSP3", "SSP3"],  # "ssp"
-            "iso": ["foo", "foo", "bar", "foo"],
-            "growth": np.arange(4, dtype=np.float64) + 1,
-        }
-    )
-    df_nightlights=pd.DataFrame(
-        {
-            "hierid" : ["fooSPAM"],
-            "gdppc_ratio" : [2.0],
-        }
-    )
-
-    baseline_df.to_csv(gdppc_baseline_path, index=False)
-    growth_df.to_csv(gdppc_growth_path, index=False)
-    df_nightlights.to_csv(nightlights_path, index=False)
-
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    testprovider = gdppc.read_gdpprovider(iam=input_iam, ssp=input_ssp,
-                                          growth_path_or_buffer=gdppc_growth_path,
-                                          baseline_path_or_buffer=gdppc_baseline_path,
-                                          nightlights_path_or_buffer=nightlights_path,
-                                          stopyear=2020, use_sharedpath=True)
+    testprovider = gdppc.read_gdpprovider(
+        iam=input_iam, ssp=input_ssp,
+        growth_path_or_buffer='social/baselines/gdppc-growth.csv',
+        baseline_path_or_buffer='social/baselines/gdppc-merged-nohier.csv',
+        nightlights_path_or_buffer='social/baselines/nightlight_weight_normalized.csv',
+        stopyear=2020, use_sharedpath=True
+    )
 
     actual = testprovider.get_timeseries(hierid="fooSPAM")
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_read_gdpprovider_noshareddir(tmpdir):
+def test_read_gdpprovider_noshareddir(tmpsetup):
     """
     Integration test for read_gdpprovider without using shareddirs
 
     Tests that files are read and cleaned from absolute paths
     such that we get a timeseries from the provider, given a hierid.
     """
-    gdppc_growth_path = tmpdir.join("gdppc-growth.csv")
-    gdppc_baseline_path = tmpdir.join("gdppc-baseline.csv")
-    nightlights_path = tmpdir.join("nightlights.csv")
-
-    # Data to dump to temp files.
-    baseline_df = pd.DataFrame(
-        {
-            "year": [2010, 2010, 2010],
-            "model": [ "low", "low", "low"],  # "iam"
-            "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
-            "iso": ["foo", "bar", "foo"],
-            "value": np.arange(3, dtype=np.float64) + 1,
-        }
-    )
-    growth_df = pd.DataFrame(
-        {
-            "year": [2015, 2010, 2015, 2020],
-            "model": ["low", "low", "low", "high"],  # "iam"
-            "scenario": ["SSP3", "SSP3", "SSP3", "SSP3"],  # "ssp"
-            "iso": ["foo", "foo", "bar", "foo"],
-            "growth": np.arange(4, dtype=np.float64) + 1,
-        }
-    )
-    df_nightlights=pd.DataFrame(
-        {
-            "hierid" : ["fooSPAM"],
-            "gdppc_ratio" : [2.0],
-        }
-    )
-
-    baseline_df.to_csv(gdppc_baseline_path, index=False)
-    growth_df.to_csv(gdppc_growth_path, index=False)
-    df_nightlights.to_csv(nightlights_path, index=False)
+    gdppc_baseline_path, gdppc_growth_path, nightlights_path = tmpsetup
 
     input_iam = "low"
     input_ssp = "SSP3"
@@ -328,51 +337,13 @@ def test_read_gdpprovider_noshareddir(tmpdir):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_GDPpcProvider(monkeypatch, tmpdir):
+def test_GDPpcProvider(tmpsetup_shareddir):
     """
     Smoke and integration test for legacy GDPpcProvider behavior
 
     Specifically this is testing that files are read and cleaned from shareddir
     such that we get a timeseries from the provider, given a hierid.
     """
-    shareddir = tmpdir.mkdir("shared")
-    monkeypatch.setenv("IMPERICS_SHAREDDIR", str(shareddir))
-
-    baseline_dir = shareddir.mkdir("social").mkdir("baselines")
-    gdppc_growth_path = baseline_dir.join("gdppc-growth.csv")
-    gdppc_baseline_path = baseline_dir.join("gdppc-merged-nohier.csv")
-    nightlights_path = baseline_dir.join("nightlight_weight_normalized.csv")
-
-    # Data to dump to temp files.
-    baseline_df = pd.DataFrame(
-        {
-            "year": [2010, 2010, 2010],
-            "model": [ "low", "low", "low"],  # "iam"
-            "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
-            "iso": ["foo", "bar", "foo"],
-            "value": np.arange(3, dtype=np.float64) + 1,
-        }
-    )
-    growth_df = pd.DataFrame(
-        {
-            "year": [2015, 2010, 2015, 2020],
-            "model": ["low", "low", "low", "high"],  # "iam"
-            "scenario": ["SSP3", "SSP3", "SSP3", "SSP3"],  # "ssp"
-            "iso": ["foo", "foo", "bar", "foo"],
-            "growth": np.arange(4, dtype=np.float64) + 1,
-        }
-    )
-    df_nightlights=pd.DataFrame(
-        {
-            "hierid" : ["fooSPAM"],
-            "gdppc_ratio" : [2.0],
-        }
-    )
-
-    baseline_df.to_csv(gdppc_baseline_path, index=False)
-    growth_df.to_csv(gdppc_growth_path, index=False)
-    df_nightlights.to_csv(nightlights_path, index=False)
-
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
