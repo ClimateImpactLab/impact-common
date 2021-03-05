@@ -210,11 +210,13 @@ def test_get_best_iso_available():
     pd.testing.assert_frame_equal(zoo_actual, zoo_goal)
 
 
-def test_GdpProvider_get_timeseries():
+def test_GdpProvider_get_timeseries(support_dfs):
     """Simple test for GdpProvider.get_timeseries
 
     This test checks output for hierid with and without nightlights coverage.
     """
+    baseline_df, growth_df, df_nightlights = support_dfs
+
     # TODO: This test should be refactored into a parameterized test, or broken into separate tests.
     goal_foospam = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
     goal_fooeggs = np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
@@ -222,32 +224,11 @@ def test_GdpProvider_get_timeseries():
     testprovider = gdppc.GdpProvider(
         iam="foo",
         ssp="SSP3",
-        df_baseline = pd.DataFrame(
-            {
-                "year": [2005, 2005],
-                "model": [ "low", "low"],  # "iam"
-                "scenario": [ "SSP3", "SSP3"],  # "ssp"
-                "iso": ["foo", "bar"],
-                "value": np.arange(2, dtype=np.float64) + 1,
-            }
-        ),
-        df_growth = pd.DataFrame(
-            {
-                "year": [2010, 2005, 2010],
-                "model": ["low", "low", "low"],  # "iam"
-                "scenario": ["SSP3", "SSP3", "SSP3"],  # "ssp"
-                "iso": ["foo", "foo", "bar"],
-                "growth": np.arange(3, dtype=np.float64) + 1,
-            }
-        ),
-        df_nightlights=pd.DataFrame(
-            {
-                "hierid" : ["fooSPAM"],
-                "gdppc_ratio" : [2.0],
-            }
-        ),
-        startyear=2005,
-        stopyear=2015
+        df_baseline=baseline_df,
+        df_growth=growth_df,
+        df_nightlights=df_nightlights,
+        startyear=2010,
+        stopyear=2020
     )
     actual_foospam = testprovider.get_timeseries(hierid="fooSPAM")
     # Test case for hierid not being in nightlights.
@@ -257,39 +238,20 @@ def test_GdpProvider_get_timeseries():
     np.testing.assert_array_equal(actual_fooeggs, goal_fooeggs)
 
 
-def test_GdpProvider_get_iso_timeseries():
+def test_GdpProvider_get_iso_timeseries(support_dfs):
     """Simple test for GdpProvider.get_iso_timeseries"""
+    baseline_df, growth_df, df_nightlights = support_dfs
+
     goal = np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
 
     testprovider = gdppc.GdpProvider(
         iam="foo",
         ssp="SSP3",
-        df_baseline = pd.DataFrame(
-            {
-                "year": [2005, 2005],
-                "model": [ "low", "low"],  # "iam"
-                "scenario": [ "SSP3", "SSP3"],  # "ssp"
-                "iso": ["foo", "bar"],
-                "value": np.arange(2, dtype=np.float64) + 1,
-            }
-        ),
-        df_growth = pd.DataFrame(
-            {
-                "year": [2010, 2005, 2010],
-                "model": ["low", "low", "low"],  # "iam"
-                "scenario": ["SSP3", "SSP3", "SSP3"],  # "ssp"
-                "iso": ["foo", "foo", "bar"],
-                "growth": np.arange(3, dtype=np.float64) + 1,
-            }
-        ),
-        df_nightlights=pd.DataFrame(
-            {
-                "hierid" : ["fooSPAM"],
-                "gdppc_ratio" : [2.0],
-            }
-        ),
-        startyear=2005,
-        stopyear=2015
+        df_baseline=baseline_df,
+        df_growth=growth_df,
+        df_nightlights=df_nightlights,
+        startyear=2010,
+        stopyear=2020
     )
     actual = testprovider.get_iso_timeseries(iso="foo")
     np.testing.assert_array_equal(actual, goal)
