@@ -144,7 +144,7 @@ def test_GdpProvider_get_timeseries():
         ssp="SSP3",
         baseline_df = pd.DataFrame(
             {
-                "year": [2005, 2010],
+                "year": [2005, 2005],
                 "model": [ "low", "low"],  # "iam"
                 "scenario": [ "SSP3", "SSP3"],  # "ssp"
                 "iso": ["foo", "bar"],
@@ -187,7 +187,7 @@ def test_GdpProvider_get_iso_timeseries():
         ssp="SSP3",
         baseline_df = pd.DataFrame(
             {
-                "year": [2005, 2010],
+                "year": [2005, 2005],
                 "model": [ "low", "low"],  # "iam"
                 "scenario": [ "SSP3", "SSP3"],  # "ssp"
                 "iso": ["foo", "bar"],
@@ -235,7 +235,7 @@ def test_read_gdpprovider_shareddir(monkeypatch, tmpdir):
     # Data to dump to temp files.
     baseline_df = pd.DataFrame(
         {
-            "year": [2010, 2015, 2020],
+            "year": [2010, 2010, 2010],
             "model": [ "low", "low", "low"],  # "iam"
             "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
             "iso": ["foo", "bar", "foo"],
@@ -289,7 +289,7 @@ def test_read_gdpprovider_noshareddir(tmpdir):
     # Data to dump to temp files.
     baseline_df = pd.DataFrame(
         {
-            "year": [2010, 2015, 2020],
+            "year": [2010, 2010, 2010],
             "model": [ "low", "low", "low"],  # "iam"
             "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
             "iso": ["foo", "bar", "foo"],
@@ -346,7 +346,7 @@ def test_GDPpcProvider(monkeypatch, tmpdir):
     # Data to dump to temp files.
     baseline_df = pd.DataFrame(
         {
-            "year": [2010, 2015, 2020],
+            "year": [2010, 2010, 2010],
             "model": [ "low", "low", "low"],  # "iam"
             "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
             "iso": ["foo", "bar", "foo"],
