@@ -25,11 +25,13 @@ def read_gdpprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, n
     return out
 
 
-def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv', baseline_filepath='social/baselines/gdppc-merged-nohier.csv', nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', sharedpath=True):
+def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
+                  baseline_filepath='social/baselines/gdppc-merged-nohier.csv',
+                  nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', sharedpath=True):
     warn("GDPpcProvider is deprecated, please use read_gdpprovider or GdpProvider, directly", DeprecationWarning)
     out = read_gdpprovider(iam=iam, ssp=ssp, growth_path_or_buffer=growth_filepath,
-                            baseline_path_or_buffer=baseline_filepath, nightlights_path_or_buffer=nightlights_filepath,
-                            baseline_year=baseline_year, sharedpath=True)
+                           baseline_path_or_buffer=baseline_filepath, nightlights_path_or_buffer=nightlights_filepath,
+                           baseline_year=baseline_year, sharedpath=sharedpath)
     return out
 
 
