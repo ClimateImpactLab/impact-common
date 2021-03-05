@@ -7,8 +7,8 @@ from . import provider
 
 
 def read_gdpprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, nightlights_path_or_buffer,
-                     baseline_year=2010, sharedpath=False):
-    if sharedpath:
+                     baseline_year=2010, use_sharedpath=False, startyear=2010, stopyear=2100):
+    if use_sharedpath:
         baseline_path_or_buffer = files.sharedpath(baseline_path_or_buffer)
         growth_path_or_buffer = files.sharedpath(growth_path_or_buffer)
         nightlights_path_or_buffer = files.sharedpath(nightlights_path_or_buffer)
@@ -21,18 +21,35 @@ def read_gdpprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, n
     df_growth['yearindex'] = np.int_((df_growth.year - baseline_year) / 5)
 
     out = GdpProvider(iam=iam, ssp=ssp, baseline_df=df, growth_df=df_growth, df_nightlights=df_nightlights,
-                      startyear=2010)
+                      startyear=startyear, stopyear=stopyear)
     return out
 
 
 def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
                   baseline_filepath='social/baselines/gdppc-merged-nohier.csv',
-                  nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', sharedpath=True):
+                  nightlights_filepath='social/baselines/nightlight_weight_normalized.csv',
+                  startyear=2010, stopyear=2100):
     warn("GDPpcProvider is deprecated, please use read_gdpprovider or GdpProvider, directly", DeprecationWarning)
     out = read_gdpprovider(iam=iam, ssp=ssp, growth_path_or_buffer=growth_filepath,
                            baseline_path_or_buffer=baseline_filepath, nightlights_path_or_buffer=nightlights_filepath,
-                           baseline_year=baseline_year, sharedpath=sharedpath)
+                           baseline_year=baseline_year, use_sharedpath=True, startyear=startyear,
+                           stopyear=stopyear)
     return out
+
+
+def _get_best_iso_available(iso, df_this, df_anyiam, df_global):
+    """Get the highest priority data available: first data from the IAM, then from any IAM, then global."""
+
+    df = df_this.loc[df_this.iso == iso]
+    if df.shape[0] > 0:
+        return df
+
+    if iso in df_anyiam.index:
+        df = df_anyiam.loc[iso]
+        if df.shape[0] > 0:
+            return df
+
+    return df_global
 
 
 def _split_baseline(df, iam, ssp, baseline_year):
@@ -67,9 +84,10 @@ class GdpProvider(provider.BySpaceProvider):
            python -m impactcommon.exogenous_economy.gdppc
     """
     
-    def __init__(self, iam, ssp, baseline_df, growth_df, df_nightlights, startyear=2010):
+    def __init__(self, iam, ssp, baseline_df, growth_df, df_nightlights, startyear=2010, stopyear=2100):
         """iam and ssp should be as described in the files (e.g., iam = 'low', ssp = 'SSP3')"""
         super().__init__(iam, ssp, startyear)
+        self.stopyear = stopyear
         self.df_nightlights = df_nightlights
 
         # Split growth and baseline data by data priority
@@ -80,6 +98,7 @@ class GdpProvider(provider.BySpaceProvider):
 
         # Cache for ISO-level GDPpc series
         self.cached_iso_gdppcs = {}
+
 
     def get_timeseries(self, hierid):
         """Return an np.array of GDPpc for the given region."""
@@ -99,7 +118,7 @@ class GdpProvider(provider.BySpaceProvider):
         # Use the cache if available
         if iso not in self.cached_iso_gdppcs:
             # Select baseline GDPpc
-            df_baseline = self._get_best_iso_available(iso, self.df_baseline_this,
+            df_baseline = _get_best_iso_available(iso, self.df_baseline_this,
                                                       self.df_baseline_anyiam,
                                                       self.baseline_global)
             baseline = df_baseline.value
@@ -107,13 +126,13 @@ class GdpProvider(provider.BySpaceProvider):
                 baseline = baseline.values[0]
 
             # Select growth series
-            df_growth = self._get_best_iso_available(iso, self.df_growth_this,
+            df_growth = _get_best_iso_available(iso, self.df_growth_this,
                                                     self.df_growth_anyiam,
                                                     self.growth_global)
 
             # Calculate GDPpc as they grow in time
             gdppcs = [baseline]
-            for year in range(self.startyear + 1, 2100 + 1):
+            for year in range(self.startyear + 1, self.stopyear + 1):
                 yearindex = int((year - 1 - self.startyear) / 5) # Last year's growth
                 growthrate = df_growth.loc[df_growth.yearindex == yearindex].growth.values
                 new_gdppc = gdppcs[-1] * growthrate
@@ -123,19 +142,6 @@ class GdpProvider(provider.BySpaceProvider):
 
         return self.cached_iso_gdppcs[iso]
 
-    def _get_best_iso_available(self, iso, df_this, df_anyiam, df_global):
-        """Get the highest priority data available: first data from the IAM, then from any IAM, then global."""
-
-        df = df_this.loc[df_this.iso == iso]
-        if df.shape[0] > 0:
-            return df
-
-        if iso in df_anyiam.index:
-            df = df_anyiam.loc[iso]
-            if df.shape[0] > 0:
-                return df
-
-        return df_global
 
 if __name__ == '__main__':
     # Test the provider
