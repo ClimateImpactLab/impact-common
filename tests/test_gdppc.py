@@ -1,3 +1,6 @@
+"""
+Various unit, smoke, and integration tests for impactcommon.exogenous_economy.gdppc
+"""
 from unittest.mock import patch
 import pytest
 import numpy as np
@@ -7,7 +10,7 @@ from impactcommon.exogenous_economy import gdppc
 
 @pytest.fixture
 def support_dfs():
-    """Setup, return support baseline, growth, nightlight pd.DataFrame files
+    """Setup, return simple unclean support baseline, growth, nightlight pd.DataFrame files, like those in shareddirs
     """
     baseline_df = pd.DataFrame(
         {
@@ -38,7 +41,7 @@ def support_dfs():
 
 @pytest.fixture
 def tmpsetup(tmpdir, support_dfs):
-    """Setup support CSV files in tmp directory for easy cleanup, without shareddir
+    """Setup uncleaned support CSV files in tmp directory for easy cleanup, without shareddir
 
     Returns
     -------
@@ -58,7 +61,7 @@ def tmpsetup(tmpdir, support_dfs):
 
 @pytest.fixture
 def tmpsetup_shareddir(tmpdir, monkeypatch, support_dfs):
-    """Setup shareddir with files in tmp directory for cleanup
+    """Setup shareddir with uncleaned files in tmp directory for cleanup
 
     The environment variable IMPERICS_SHAREDDIR is monkeypatched with shareddir
     path.
