@@ -222,7 +222,7 @@ def test_GdpProvider_get_timeseries():
     testprovider = gdppc.GdpProvider(
         iam="foo",
         ssp="SSP3",
-        baseline_df = pd.DataFrame(
+        df_baseline = pd.DataFrame(
             {
                 "year": [2005, 2005],
                 "model": [ "low", "low"],  # "iam"
@@ -231,10 +231,9 @@ def test_GdpProvider_get_timeseries():
                 "value": np.arange(2, dtype=np.float64) + 1,
             }
         ),
-        growth_df = pd.DataFrame(
+        df_growth = pd.DataFrame(
             {
                 "year": [2010, 2005, 2010],
-                "yearindex": [1, 0, 1],
                 "model": ["low", "low", "low"],  # "iam"
                 "scenario": ["SSP3", "SSP3", "SSP3"],  # "ssp"
                 "iso": ["foo", "foo", "bar"],
@@ -265,7 +264,7 @@ def test_GdpProvider_get_iso_timeseries():
     testprovider = gdppc.GdpProvider(
         iam="foo",
         ssp="SSP3",
-        baseline_df = pd.DataFrame(
+        df_baseline = pd.DataFrame(
             {
                 "year": [2005, 2005],
                 "model": [ "low", "low"],  # "iam"
@@ -274,10 +273,9 @@ def test_GdpProvider_get_iso_timeseries():
                 "value": np.arange(2, dtype=np.float64) + 1,
             }
         ),
-        growth_df = pd.DataFrame(
+        df_growth = pd.DataFrame(
             {
                 "year": [2010, 2005, 2010],
-                "yearindex": [1, 0, 1],
                 "model": ["low", "low", "low"],  # "iam"
                 "scenario": ["SSP3", "SSP3", "SSP3"],  # "ssp"
                 "iso": ["foo", "foo", "bar"],
