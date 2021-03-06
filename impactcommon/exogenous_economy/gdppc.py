@@ -37,10 +37,16 @@ def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baseline
         "GDPpcProvider is deprecated, please use read_bestgdppcprovider or BestGDPpcProvider, directly",
         DeprecationWarning
     )
-    out = read_bestgdppcprovider(iam=iam, ssp=ssp, growth_path_or_buffer=growth_filepath,
-                                 baseline_path_or_buffer=baseline_filepath,
-                                 nightlights_path_or_buffer=nightlights_filepath,
-                                 use_sharedpath=True, startyear=baseline_year, stopyear=stopyear)
+    out = read_bestgdppcprovider(
+        iam=iam,
+        ssp=ssp,
+        growth_path_or_buffer=growth_filepath,
+        baseline_path_or_buffer=baseline_filepath,
+        nightlights_path_or_buffer=nightlights_filepath,
+        use_sharedpath=True,
+        startyear=baseline_year,
+        stopyear=stopyear
+    )
     return out
 
 
