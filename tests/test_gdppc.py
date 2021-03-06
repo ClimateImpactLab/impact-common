@@ -1,7 +1,6 @@
 """
 Various unit, smoke, and integration tests for impactcommon.exogenous_economy.gdppc
 """
-from unittest.mock import patch
 import pytest
 import numpy as np
 import pandas as pd
