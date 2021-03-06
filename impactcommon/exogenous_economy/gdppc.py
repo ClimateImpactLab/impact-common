@@ -6,8 +6,8 @@ from impactlab_tools.utils import files
 from . import provider
 
 
-def read_gdpprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, nightlights_path_or_buffer,
-                     startyear=2010, stopyear=2100, use_sharedpath=False):
+def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, nightlights_path_or_buffer,
+                           startyear=2010, stopyear=2100, use_sharedpath=False):
     if use_sharedpath:
         baseline_path_or_buffer = files.sharedpath(baseline_path_or_buffer)
         growth_path_or_buffer = files.sharedpath(growth_path_or_buffer)
@@ -17,18 +17,18 @@ def read_gdpprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, n
     df_growth = metacsv.read_csv(files.sharedpath(growth_path_or_buffer))
     df_nightlights = metacsv.read_csv(files.sharedpath(nightlights_path_or_buffer))
 
-    out = GdpProvider(iam=iam, ssp=ssp, df_baseline=df, df_growth=df_growth, df_nightlights=df_nightlights,
-                      startyear=startyear, stopyear=stopyear)
+    out = BestGDPpcProvider(iam=iam, ssp=ssp, df_baseline=df, df_growth=df_growth, df_nightlights=df_nightlights,
+                            startyear=startyear, stopyear=stopyear)
     return out
 
 
 def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
                   baseline_filepath='social/baselines/gdppc-merged-nohier.csv',
                   nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', stopyear=2100):
-    warn("GDPpcProvider is deprecated, please use read_gdpprovider or GdpProvider, directly", DeprecationWarning)
-    out = read_gdpprovider(iam=iam, ssp=ssp, growth_path_or_buffer=growth_filepath,
-                           baseline_path_or_buffer=baseline_filepath, nightlights_path_or_buffer=nightlights_filepath,
-                           use_sharedpath=True, startyear=baseline_year, stopyear=stopyear)
+    warn("GDPpcProvider is deprecated, please use read_bestgdppcprovider or BestGDPpcProvider, directly", DeprecationWarning)
+    out = read_bestgdppcprovider(iam=iam, ssp=ssp, growth_path_or_buffer=growth_filepath,
+                                 baseline_path_or_buffer=baseline_filepath, nightlights_path_or_buffer=nightlights_filepath,
+                                 use_sharedpath=True, startyear=baseline_year, stopyear=stopyear)
     return out
 
 
@@ -63,7 +63,7 @@ def _split_growth(df, iam, ssp):
     return this_df, anyiam_df, global_df
 
 
-class GdpProvider(provider.BySpaceProvider):
+class BestGDPpcProvider(provider.BySpaceProvider):
     """
     Provider for timeseries of Gross domestic product per capita (GDPpc) for a given IAM and SSP.
 

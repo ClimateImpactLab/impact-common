@@ -210,8 +210,8 @@ def test_get_best_iso_available():
     pd.testing.assert_frame_equal(zoo_actual, zoo_goal)
 
 
-def test_GdpProvider_get_timeseries(support_dfs):
-    """Simple test for GdpProvider.get_timeseries
+def test_bestgdppcprovider_get_timeseries(support_dfs):
+    """Simple test for BestGDPpcProvider.get_timeseries
 
     This test checks output for hierid with and without nightlights coverage.
     """
@@ -221,7 +221,7 @@ def test_GdpProvider_get_timeseries(support_dfs):
     goal_foospam = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
     goal_fooeggs = np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
 
-    testprovider = gdppc.GdpProvider(
+    testprovider = gdppc.BestGDPpcProvider(
         iam="foo",
         ssp="SSP3",
         df_baseline=baseline_df,
@@ -238,13 +238,13 @@ def test_GdpProvider_get_timeseries(support_dfs):
     np.testing.assert_array_equal(actual_fooeggs, goal_fooeggs)
 
 
-def test_GdpProvider_get_iso_timeseries(support_dfs):
-    """Simple test for GdpProvider.get_iso_timeseries"""
+def test_bestgdppcprovider_get_iso_timeseries(support_dfs):
+    """Simple test for BestGDPpcProvider.get_iso_timeseries"""
     baseline_df, growth_df, df_nightlights = support_dfs
 
     goal = np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
 
-    testprovider = gdppc.GdpProvider(
+    testprovider = gdppc.BestGDPpcProvider(
         iam="foo",
         ssp="SSP3",
         df_baseline=baseline_df,
@@ -257,9 +257,9 @@ def test_GdpProvider_get_iso_timeseries(support_dfs):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_read_gdpprovider_shareddir(tmpsetup_shareddir):
+def test_read_bestgdppcprovider_shareddir(tmpsetup_shareddir):
     """
-    Integration test for read_gdpprovider with shareddirs
+    Integration test for read_bestgdppcprovider with shareddirs
 
     Tests that files are read and cleaned from shareddir paths
     such that we get a timeseries from the provider, given a hierid.
@@ -267,7 +267,7 @@ def test_read_gdpprovider_shareddir(tmpsetup_shareddir):
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    testprovider = gdppc.read_gdpprovider(
+    testprovider = gdppc.read_bestgdppcprovider(
         iam=input_iam, ssp=input_ssp,
         growth_path_or_buffer='social/baselines/gdppc-growth.csv',
         baseline_path_or_buffer='social/baselines/gdppc-merged-nohier.csv',
@@ -279,9 +279,9 @@ def test_read_gdpprovider_shareddir(tmpsetup_shareddir):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_read_gdpprovider_noshareddir(tmpsetup):
+def test_read_bestgdppcprovider_noshareddir(tmpsetup):
     """
-    Integration test for read_gdpprovider without using shareddirs
+    Integration test for read_bestgdppcprovider without using shareddirs
 
     Tests that files are read and cleaned from absolute paths
     such that we get a timeseries from the provider, given a hierid.
@@ -291,11 +291,11 @@ def test_read_gdpprovider_noshareddir(tmpsetup):
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    testprovider = gdppc.read_gdpprovider(iam=input_iam, ssp=input_ssp,
-                                          growth_path_or_buffer=str(gdppc_growth_path),
-                                          baseline_path_or_buffer=str(gdppc_baseline_path),
-                                          nightlights_path_or_buffer=str(nightlights_path),
-                                          stopyear=2020)
+    testprovider = gdppc.read_bestgdppcprovider(iam=input_iam, ssp=input_ssp,
+                                                growth_path_or_buffer=str(gdppc_growth_path),
+                                                baseline_path_or_buffer=str(gdppc_baseline_path),
+                                                nightlights_path_or_buffer=str(nightlights_path),
+                                                stopyear=2020)
     actual = testprovider.get_timeseries(hierid="fooSPAM")
     np.testing.assert_array_equal(actual, goal)
 
