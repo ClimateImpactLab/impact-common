@@ -211,16 +211,27 @@ def test_get_best_iso_available():
     pd.testing.assert_frame_equal(zoo_actual, zoo_goal)
 
 
-def test_bestgdppcprovider_get_timeseries(support_dfs):
+@pytest.mark.parametrize(
+    "hierid, goal",
+    [
+        pytest.param(
+            "fooSPAM",
+            np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.]),
+            id="hierid in nightlights",
+        ),
+        pytest.param(
+            "fooEGGS",
+            np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.]),
+            id="hierid not in nightlights",
+        ),
+    ],
+)
+def test_bestgdppcprovider_get_timeseries(support_dfs, hierid, goal):
     """Simple test for BestGDPpcProvider.get_timeseries
 
     This test checks output for hierid with and without nightlights coverage.
     """
     baseline_df, growth_df, df_nightlights = support_dfs
-
-    # TODO: This test should be refactored into a parameterized test, or broken into separate tests.
-    goal_foospam = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    goal_fooeggs = np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
 
     testprovider = gdppc.BestGDPpcProvider(
         iam="foo",
@@ -231,12 +242,9 @@ def test_bestgdppcprovider_get_timeseries(support_dfs):
         startyear=2010,
         stopyear=2020
     )
-    actual_foospam = testprovider.get_timeseries(hierid="fooSPAM")
-    # Test case for hierid not being in nightlights.
-    actual_fooeggs = testprovider.get_timeseries(hierid="fooEGGS")
+    actual = testprovider.get_timeseries(hierid=hierid)
 
-    np.testing.assert_array_equal(actual_foospam, goal_foospam)
-    np.testing.assert_array_equal(actual_fooeggs, goal_fooeggs)
+    np.testing.assert_array_equal(actual, goal)
 
 
 def test_bestgdppcprovider_get_iso_timeseries(support_dfs):
