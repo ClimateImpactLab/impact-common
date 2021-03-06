@@ -9,6 +9,48 @@ from . import provider
 
 def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, nightlights_path_or_buffer,
                            startyear=2010, stopyear=2100, use_sharedpath=False):
+    """
+    Read files on disk to create a BestGDPpcProvider instance
+
+    Parameters
+    ----------
+    iam : str
+    ssp : str
+    growth_path_or_buffer
+        CSV file containing GDPpc growth projection at 5-year intervals. Must have columns giving "year",
+        IAM model ("model"), SSP scenario ("scenario"), the ISO entity ("iso"),
+        and the actual GDPpc growth values value ("growth").
+    baseline_path_or_buffer
+        CSV file containing GDPpc baseline values. Must have columns giving "year",
+        IAM model ("model"), SSP scenario ("scenario"), the ISO entity ("iso"),
+        and corresponding the actual GDPpc values ("value").
+    nightlights_path_or_buffer
+        CSV file of nightlight-based ratios for regions.
+    startyear : int, optional
+        Year to draw baseline value from. Must be in 'baseline_path_or_buffer' file's "year" column.
+    stopyear : int, optional
+        Must be within 5 years of the largest "year"  in 'growth_path_or_buffer'.
+    use_sharedpath : bool, optional
+        Interpret paths without leading "/" as "shareddir" paths?
+
+    Returns
+    -------
+    out : BestGDPpcProvider
+
+    Examples
+    --------
+    >>> provider = read_bestgdppcprovider(
+    ...     'low', 'SSP3',
+    ...     growth_path_or_buffer='inputdata/gdppc/growth.csv',
+    ...     baseline_path_or_buffer='inputdata/gdppc/baseline.csv',
+    ...     nightlights_path_or_buffer='inputdata/nightlights_normalized.csv'
+    ... )
+    >>> gdppcs = provider.get_timeseries('ZWE.2.2')  # Get the series for any hierid or ISO
+
+    See Also
+    --------
+    BestGDPpcProvider : Provider of GDP per capita (GDPpc) timeseries, selecting "best" data source
+    """
     if use_sharedpath:
         baseline_path_or_buffer = files.sharedpath(baseline_path_or_buffer)
         growth_path_or_buffer = files.sharedpath(growth_path_or_buffer)
@@ -33,6 +75,35 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
 def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
                   baseline_filepath='social/baselines/gdppc-merged-nohier.csv',
                   nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', stopyear=2100):
+    """Get BestGDPpcProvider through the legacy GDPpcProvider interface
+
+    This interface is deprecated, please use read_bestgdppcprovider() or
+    instantiate BestGDPpcProvider, directly.
+
+    Parameters
+    ----------
+    iam : str
+    ssp : str
+    baseline_year : int, optional
+    growth_filepath : str, optional
+    baseline_filepath : str, optional
+    nightlights_filepath : str, optional
+    stopyear : int, optional
+
+    Returns
+    -------
+    out : impactcommmon.exogenous_economy.BestGDPpcProvider
+
+    Examples
+    --------
+    >>> provider = GDPpcProvider('low', 'SSP3')  # Requires setting IMPERICS_SHAREDDIR.
+    >>> gdppcs = provider.get_timeseries('ZWE.2.2')  # Get the series for any hierid or ISO
+
+    See Also
+    --------
+    read_bestgdppcprovider : Read files on disk to create a BestGDPpcProvider instance
+    BestGDPpcProvider : Provider of GDP per capita (GDPpc) timeseries, selecting "best" data source
+    """
     warn(
         "GDPpcProvider is deprecated, please use read_bestgdppcprovider or BestGDPpcProvider, directly",
         DeprecationWarning
@@ -83,18 +154,36 @@ def _split_growth(df, iam, ssp):
 
 class BestGDPpcProvider(provider.BySpaceProvider):
     """
-    Provider for timeseries of Gross domestic product per capita (GDPpc) for a given IAM and SSP.
+    Provider of GDP per capita (GDPpc) timeseries, selecting "best" available source
 
-    Usage example:
-      provider = GDPpcProvider('low', 'SSP3') # initialize the provider
-      gdppcs = provider.get_timeseries('ZWE.2.2') # get the series for any hierid or ISO
-      provider.get_startyear() # the first year
-    
-    Testing it:
-      1. Clone the impact-common repository to a folder.
-      2. Make a server.yml file in the same directory with the contents "shareddir: <path to GCP data dir.>"
-      3. cd into the impact-common directory and run:
-           python -m impactcommon.exogenous_economy.gdppc
+    The provider selects the "best" data by using the highest priority data
+    available: first data from the IAM, then from any IAM, then global.
+
+    This is most commonly instantiated through ''read_bestgdppcprovider()''.
+
+    Parameters
+    ----------
+    iam : str
+        Target IAM model, e.g. "high" or "low".
+    ssp : str
+        Target SSP scenario, e.g. "SSP3".
+    df_baseline : pd.Dataframe
+        Annual GDPpc baseline observations. Must have columns giving "year",
+        IAM model ("model"), SSP scenario ("scenario"), the ISO entity ("iso"),
+        and corresponding the actual GDPpc value ("value").
+    df_growth : pd.Dataframe
+        Projected GDPpc differences at 5-year intervals. Must have the same
+        columns as `df_baseline` ("year", "model", "scenario", "iso") but
+        with a "growth" column of projected changes in GDPpc.
+    df_nightlights : pd.Dataframe
+    startyear : int, optional
+        Year to draw baseline value from. Must be in 'df_baseline's "year" column.
+    stopyear : int, optional
+        Must be within 5 years of the largest "year"  in 'df_growth'.
+
+    See Also
+    --------
+    read_bestgdppcprovider : Read files on disk to create a BestGDPpcProvider instance.
     """
     
     def __init__(self, iam, ssp, df_baseline, df_growth, df_nightlights, startyear=2010, stopyear=2100):
