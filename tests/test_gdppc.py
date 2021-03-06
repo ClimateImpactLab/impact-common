@@ -153,8 +153,6 @@ def test_get_best_iso_available():
 
     This tests 4 specific selection cases.
     """
-    # TODO: This test should be refactored into a parameterized test, or broken into separate tests.
-
     # Setup inputs.
     df_this = pd.DataFrame(
         {
