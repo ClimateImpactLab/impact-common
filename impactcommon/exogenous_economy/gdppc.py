@@ -1,3 +1,4 @@
+from functools import lru_cache
 from warnings import warn
 import numpy as np
 import pandas as pd
@@ -112,10 +113,6 @@ class BestGDPpcProvider(provider.BySpaceProvider):
             self.ssp
         )
 
-        # Cache for ISO-level GDPpc series
-        self.cached_iso_gdppcs = {}
-
-
     def get_timeseries(self, hierid):
         """Return an np.array of GDPpc for the given region."""
         
@@ -128,41 +125,37 @@ class BestGDPpcProvider(provider.BySpaceProvider):
         
         return iso_gdppcs * ratio.values[0]
 
+    @lru_cache(maxsize=None)
     def get_iso_timeseries(self, iso):
         """Return an np.array of GDPpc for the given ISO country."""
+        # Select baseline GDPpc
+        df_baseline = _get_best_iso_available(
+            iso,
+            self.df_baseline_this,
+            self.df_baseline_anyiam,
+            self.baseline_global
+        )
+        baseline = df_baseline.value
+        if isinstance(baseline, pd.Series):
+            baseline = baseline.values[0]
 
-        # Use the cache if available
-        if iso not in self.cached_iso_gdppcs:
-            # Select baseline GDPpc
-            df_baseline = _get_best_iso_available(
-                iso,
-                self.df_baseline_this,
-                self.df_baseline_anyiam,
-                self.baseline_global
-            )
-            baseline = df_baseline.value
-            if isinstance(baseline, pd.Series):
-                baseline = baseline.values[0]
+        # Select growth series
+        df_growth = _get_best_iso_available(
+            iso,
+            self.df_growth_this,
+            self.df_growth_anyiam,
+            self.growth_global
+        )
 
-            # Select growth series
-            df_growth = _get_best_iso_available(
-                iso,
-                self.df_growth_this,
-                self.df_growth_anyiam,
-                self.growth_global
-            )
+        # Calculate GDPpc as they grow in time
+        gdppcs = [baseline]
+        for year in range(self.startyear + 1, self.stopyear + 1):
+            yearindex = int((year - 1 - self.startyear) / 5) # Last year's growth
+            growthrate = df_growth.loc[df_growth.yearindex == yearindex].growth.values
+            new_gdppc = gdppcs[-1] * growthrate
+            gdppcs.append(new_gdppc.item())
 
-            # Calculate GDPpc as they grow in time
-            gdppcs = [baseline]
-            for year in range(self.startyear + 1, self.stopyear + 1):
-                yearindex = int((year - 1 - self.startyear) / 5) # Last year's growth
-                growthrate = df_growth.loc[df_growth.yearindex == yearindex].growth.values
-                new_gdppc = gdppcs[-1] * growthrate
-                gdppcs.append(new_gdppc.item())
-
-            self.cached_iso_gdppcs[iso] = np.array(gdppcs)
-
-        return self.cached_iso_gdppcs[iso]
+        return np.array(gdppcs)
 
 
 if __name__ == '__main__':
