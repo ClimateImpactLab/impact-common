@@ -17,17 +17,28 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
     df_growth = metacsv.read_csv(files.sharedpath(growth_path_or_buffer))
     df_nightlights = metacsv.read_csv(files.sharedpath(nightlights_path_or_buffer))
 
-    out = BestGDPpcProvider(iam=iam, ssp=ssp, df_baseline=df, df_growth=df_growth, df_nightlights=df_nightlights,
-                            startyear=startyear, stopyear=stopyear)
+    out = BestGDPpcProvider(
+        iam=iam,
+        ssp=ssp,
+        df_baseline=df,
+        df_growth=df_growth,
+        df_nightlights=df_nightlights,
+        startyear=startyear,
+        stopyear=stopyear
+    )
     return out
 
 
 def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
                   baseline_filepath='social/baselines/gdppc-merged-nohier.csv',
                   nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', stopyear=2100):
-    warn("GDPpcProvider is deprecated, please use read_bestgdppcprovider or BestGDPpcProvider, directly", DeprecationWarning)
+    warn(
+        "GDPpcProvider is deprecated, please use read_bestgdppcprovider or BestGDPpcProvider, directly",
+        DeprecationWarning
+    )
     out = read_bestgdppcprovider(iam=iam, ssp=ssp, growth_path_or_buffer=growth_filepath,
-                                 baseline_path_or_buffer=baseline_filepath, nightlights_path_or_buffer=nightlights_filepath,
+                                 baseline_path_or_buffer=baseline_filepath,
+                                 nightlights_path_or_buffer=nightlights_filepath,
                                  use_sharedpath=True, startyear=baseline_year, stopyear=stopyear)
     return out
 
@@ -89,10 +100,17 @@ class BestGDPpcProvider(provider.BySpaceProvider):
         df_growth['yearindex'] = np.int_((df_growth.year - self.startyear) / 5)
 
         # Split growth and baseline data by data priority
-        self.df_baseline_this, self.df_baseline_anyiam, self.baseline_global = _split_baseline(df_baseline,
-                                                                                               self.iam, self.ssp,
-                                                                                               self.startyear)
-        self.df_growth_this, self.df_growth_anyiam, self.growth_global = _split_growth(df_growth, self.iam, self.ssp)
+        self.df_baseline_this, self.df_baseline_anyiam, self.baseline_global = _split_baseline(
+            df_baseline,
+            self.iam,
+            self.ssp,
+            self.startyear
+        )
+        self.df_growth_this, self.df_growth_anyiam, self.growth_global = _split_growth(
+            df_growth,
+            self.iam,
+            self.ssp
+        )
 
         # Cache for ISO-level GDPpc series
         self.cached_iso_gdppcs = {}
@@ -116,17 +134,23 @@ class BestGDPpcProvider(provider.BySpaceProvider):
         # Use the cache if available
         if iso not in self.cached_iso_gdppcs:
             # Select baseline GDPpc
-            df_baseline = _get_best_iso_available(iso, self.df_baseline_this,
-                                                      self.df_baseline_anyiam,
-                                                      self.baseline_global)
+            df_baseline = _get_best_iso_available(
+                iso,
+                self.df_baseline_this,
+                self.df_baseline_anyiam,
+                self.baseline_global
+            )
             baseline = df_baseline.value
             if isinstance(baseline, pd.Series):
                 baseline = baseline.values[0]
 
             # Select growth series
-            df_growth = _get_best_iso_available(iso, self.df_growth_this,
-                                                    self.df_growth_anyiam,
-                                                    self.growth_global)
+            df_growth = _get_best_iso_available(
+                iso,
+                self.df_growth_this,
+                self.df_growth_anyiam,
+                self.growth_global
+            )
 
             # Calculate GDPpc as they grow in time
             gdppcs = [baseline]

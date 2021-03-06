@@ -138,7 +138,9 @@ def test_split_growth():
             "growth": np.array([5.0, 3.5, 2.0, 1.0], dtype=np.float64),
         }
     ).set_index(["iso", "year"])
-    globe_goal = pd.DataFrame({"year": [2005, 2010], "growth": [2.0, 2.0]}).set_index("year")
+    globe_goal = pd.DataFrame(
+        {"year": [2005, 2010], "growth": [2.0, 2.0]}
+    ).set_index("year")
 
     this, anyiam, globe = gdppc._split_growth(in_df, iam="low", ssp="SSP3")
 
@@ -291,11 +293,14 @@ def test_read_bestgdppcprovider_noshareddir(tmpsetup):
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    testprovider = gdppc.read_bestgdppcprovider(iam=input_iam, ssp=input_ssp,
-                                                growth_path_or_buffer=str(gdppc_growth_path),
-                                                baseline_path_or_buffer=str(gdppc_baseline_path),
-                                                nightlights_path_or_buffer=str(nightlights_path),
-                                                stopyear=2020)
+    testprovider = gdppc.read_bestgdppcprovider(
+        iam=input_iam,
+        ssp=input_ssp,
+        growth_path_or_buffer=str(gdppc_growth_path),
+        baseline_path_or_buffer=str(gdppc_baseline_path),
+        nightlights_path_or_buffer=str(nightlights_path),
+        stopyear=2020
+    )
     actual = testprovider.get_timeseries(hierid="fooSPAM")
     np.testing.assert_array_equal(actual, goal)
 
