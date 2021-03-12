@@ -35,7 +35,7 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
 
     Returns
     -------
-    out : BestGDPpcProvider
+    BestGDPpcProvider
 
     Examples
     --------
@@ -60,7 +60,7 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
     df_growth = metacsv.read_csv(files.sharedpath(growth_path_or_buffer))
     df_nightlights = metacsv.read_csv(files.sharedpath(nightlights_path_or_buffer))
 
-    out = BestGDPpcProvider(
+    return BestGDPpcProvider(
         iam=iam,
         ssp=ssp,
         df_baseline=df,
@@ -69,7 +69,6 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
         startyear=startyear,
         stopyear=stopyear
     )
-    return out
 
 
 def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
