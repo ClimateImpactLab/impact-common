@@ -98,14 +98,14 @@ def tmpsetup_shareddir(tmpdir, monkeypatch, support_dfs):
         ),
     ],
 )
-def test_bestgdppcprovider_get_timeseries(support_dfs, hierid, goal):
-    """Simple test for BestGDPpcProvider.get_timeseries
+def test_hierarchicalgdppcprovider_get_timeseries(support_dfs, hierid, goal):
+    """Simple test for HierarchicalGDPpcProvider.get_timeseries
 
     This test checks output for hierid with and without nightlights coverage.
     """
     baseline_df, growth_df, df_nightlights = support_dfs
 
-    testprovider = gdppc.BestGDPpcProvider(
+    testprovider = gdppc.HierarchicalGDPpcProvider(
         iam="foo",
         ssp="SSP3",
         df_baseline=baseline_df,
@@ -119,13 +119,13 @@ def test_bestgdppcprovider_get_timeseries(support_dfs, hierid, goal):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_bestgdppcprovider_get_iso_timeseries(support_dfs):
-    """Simple test for BestGDPpcProvider.get_iso_timeseries"""
+def test_hierarchicalgdppcprovider_get_iso_timeseries(support_dfs):
+    """Simple test for HierarchicalGDPpcProvider.get_iso_timeseries"""
     baseline_df, growth_df, df_nightlights = support_dfs
 
     goal = np.array([1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
 
-    testprovider = gdppc.BestGDPpcProvider(
+    testprovider = gdppc.HierarchicalGDPpcProvider(
         iam="foo",
         ssp="SSP3",
         df_baseline=baseline_df,
@@ -138,9 +138,9 @@ def test_bestgdppcprovider_get_iso_timeseries(support_dfs):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_read_bestgdppcprovider_shareddir(tmpsetup_shareddir):
+def test_read_hierarchicalgdppcprovider_shareddir(tmpsetup_shareddir):
     """
-    Integration test for read_bestgdppcprovider with shareddirs
+    Integration test for read_hierarchicalgdppcprovider with shareddirs
 
     Tests that files are read and cleaned from shareddir paths
     such that we get a timeseries from the provider, given a hierid.
@@ -148,7 +148,7 @@ def test_read_bestgdppcprovider_shareddir(tmpsetup_shareddir):
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    testprovider = gdppc.read_bestgdppcprovider(
+    testprovider = gdppc.read_hierarchicalgdppcprovider(
         iam=input_iam, ssp=input_ssp,
         growth_path_or_buffer='social/baselines/gdppc-growth.csv',
         baseline_path_or_buffer='social/baselines/gdppc-merged-nohier.csv',
@@ -160,9 +160,9 @@ def test_read_bestgdppcprovider_shareddir(tmpsetup_shareddir):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_read_bestgdppcprovider_noshareddir(tmpsetup):
+def test_read_hierarchicalgdppcprovider_noshareddir(tmpsetup):
     """
-    Integration test for read_bestgdppcprovider without using shareddirs
+    Integration test for read_hierarchicalgdppcprovider without using shareddirs
 
     Tests that files are read and cleaned from absolute paths
     such that we get a timeseries from the provider, given a hierid.
@@ -172,7 +172,7 @@ def test_read_bestgdppcprovider_noshareddir(tmpsetup):
     input_iam = "low"
     input_ssp = "SSP3"
     goal = np.array([2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
-    testprovider = gdppc.read_bestgdppcprovider(
+    testprovider = gdppc.read_hierarchicalgdppcprovider(
         iam=input_iam,
         ssp=input_ssp,
         growth_path_or_buffer=str(gdppc_growth_path),

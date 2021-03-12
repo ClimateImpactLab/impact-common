@@ -7,10 +7,10 @@ from impactlab_tools.utils import files
 from . import provider
 
 
-def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, nightlights_path_or_buffer,
-                           startyear=2010, stopyear=2100, use_sharedpath=False):
+def read_hierarchicalgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buffer, nightlights_path_or_buffer,
+                                   startyear=2010, stopyear=2100, use_sharedpath=False):
     """
-    Read files on disk to create a BestGDPpcProvider instance
+    Read files on disk to create a HierarchicalGDPpcProvider instance
 
     Parameters
     ----------
@@ -35,11 +35,11 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
 
     Returns
     -------
-    BestGDPpcProvider
+    HierarchicalGDPpcProvider
 
     Examples
     --------
-    >>> provider = read_bestgdppcprovider(
+    >>> provider = read_hierarchicalgdppcprovider(
     ...     'low', 'SSP3',
     ...     growth_path_or_buffer='inputdata/gdppc/growth.csv',
     ...     baseline_path_or_buffer='inputdata/gdppc/baseline.csv',
@@ -49,7 +49,7 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
 
     See Also
     --------
-    BestGDPpcProvider : Provider of GDP per capita (GDPpc) timeseries, selecting "best" data source
+    HierarchicalGDPpcProvider : Provider of GDP per capita (GDPpc) timeseries, selecting "best" data source
     """
     if use_sharedpath:
         baseline_path_or_buffer = files.sharedpath(baseline_path_or_buffer)
@@ -60,7 +60,7 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
     df_growth = metacsv.read_csv(files.sharedpath(growth_path_or_buffer))
     df_nightlights = metacsv.read_csv(files.sharedpath(nightlights_path_or_buffer))
 
-    return BestGDPpcProvider(
+    return HierarchicalGDPpcProvider(
         iam=iam,
         ssp=ssp,
         df_baseline=df,
@@ -74,10 +74,10 @@ def read_bestgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_path_or_buf
 def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baselines/gdppc-growth.csv',
                   baseline_filepath='social/baselines/gdppc-merged-nohier.csv',
                   nightlights_filepath='social/baselines/nightlight_weight_normalized.csv', stopyear=2100):
-    """Get BestGDPpcProvider through the legacy GDPpcProvider interface
+    """Get HierarchicalGDPpcProvider through the legacy GDPpcProvider interface
 
-    This interface is deprecated, please use read_bestgdppcprovider() or
-    instantiate BestGDPpcProvider, directly.
+    This interface is deprecated, please use read_hierarchicalgdppcprovider() or
+    instantiate HierarchicalGDPpcProvider, directly.
 
     Parameters
     ----------
@@ -91,7 +91,7 @@ def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baseline
 
     Returns
     -------
-    out : impactcommmon.exogenous_economy.BestGDPpcProvider
+    out : impactcommmon.exogenous_economy.HierarchicalGDPpcProvider
 
     Examples
     --------
@@ -100,14 +100,14 @@ def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baseline
 
     See Also
     --------
-    read_bestgdppcprovider : Read files on disk to create a BestGDPpcProvider instance
-    BestGDPpcProvider : Provider of GDP per capita (GDPpc) timeseries, selecting "best" data source
+    read_hierarchicalgdppcprovider : Read files on disk to create a HierarchicalGDPpcProvider instance
+    HierarchicalGDPpcProvider : Provider of GDP per capita (GDPpc) timeseries, selecting "best" data source
     """
     warn(
-        "GDPpcProvider is deprecated, please use read_bestgdppcprovider or BestGDPpcProvider, directly",
+        "GDPpcProvider is deprecated, please use read_hierarchicalgdppcprovider or HierarchicalGDPpcProvider, directly",
         DeprecationWarning
     )
-    out = read_bestgdppcprovider(
+    out = read_hierarchicalgdppcprovider(
         iam=iam,
         ssp=ssp,
         growth_path_or_buffer=growth_filepath,
@@ -120,14 +120,14 @@ def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baseline
     return out
 
 
-class BestGDPpcProvider(provider.BySpaceProvider):
+class HierarchicalGDPpcProvider(provider.BySpaceProvider):
     """
     Provider of GDP per capita (GDPpc) timeseries, selecting "best" available source
 
     The provider selects the "best" data by using the highest priority data
     available: first data from the IAM, then from any IAM, then global.
 
-    This is most commonly instantiated through ''read_bestgdppcprovider()''.
+    This is most commonly instantiated through ''read_hierarchicalgdppcprovider()''.
 
     Parameters
     ----------
@@ -151,7 +151,7 @@ class BestGDPpcProvider(provider.BySpaceProvider):
 
     See Also
     --------
-    read_bestgdppcprovider : Read files on disk to create a BestGDPpcProvider instance.
+    read_hierarchicalgdppcprovider : Read files on disk to create a HierarchicalGDPpcProvider instance.
     """
     
     def __init__(self, iam, ssp, df_baseline, df_growth, df_nightlights, startyear=2010, stopyear=2100):
