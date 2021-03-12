@@ -83,67 +83,6 @@ def tmpsetup_shareddir(tmpdir, monkeypatch, support_dfs):
     df_nightlights.to_csv(nightlights_path, index=False)
 
 
-def test_get_best_iso_available():
-    """Test that _get_best_iso_available() correctly selects "best" data.
-
-    This tests 4 specific selection cases.
-    """
-    # Setup inputs.
-    df_this = pd.DataFrame(
-        {
-            "year": [2005, 2010],
-            "model": ["low", "high"],  # "iam"
-            "scenario": ["SSP3", "SSP3"],  # "ssp"
-            "iso": ["foo", "spam"],
-            "growth": np.array([2, 3], dtype=np.float64),
-        }
-    )
-    df_anyiam = pd.DataFrame(
-        {
-            "year": [2005, 2010],
-            "iso": ["foo", "bar"],
-            "growth": np.array([2, 3], dtype=np.float64),
-        }
-    ).set_index(["iso", "year"])
-    df_global = pd.DataFrame({"year": [2005, 2010], "growth": [2.0, 2.0]}).set_index("year")
-
-    # Setup goals
-    foo_goal = df_this.iloc[[0]].copy()
-    spam_goal = df_this.iloc[[1]].copy()
-    bar_goal = df_anyiam.loc["bar"].copy()
-    zoo_goal = df_global.copy()
-
-    foo_actual = gdppc._get_best_iso_available(
-        iso="foo",
-        df_this=df_this,
-        df_anyiam=df_anyiam,
-        df_global=df_global
-    )
-    spam_actual = gdppc._get_best_iso_available(
-        iso="spam",
-        df_this=df_this,
-        df_anyiam=df_anyiam,
-        df_global=df_global
-    )
-    bar_actual = gdppc._get_best_iso_available(
-        iso="bar",
-        df_this=df_this,
-        df_anyiam=df_anyiam,
-        df_global=df_global
-    )
-    zoo_actual = gdppc._get_best_iso_available(
-        iso="zoo",
-        df_this=df_this,
-        df_anyiam=df_anyiam,
-        df_global=df_global
-    )
-
-    pd.testing.assert_frame_equal(foo_actual, foo_goal)
-    pd.testing.assert_frame_equal(spam_actual, spam_goal)
-    pd.testing.assert_frame_equal(bar_actual, bar_goal)
-    pd.testing.assert_frame_equal(zoo_actual, zoo_goal)
-
-
 @pytest.mark.parametrize(
     "hierid, goal",
     [

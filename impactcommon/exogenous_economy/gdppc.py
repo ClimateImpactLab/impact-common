@@ -121,21 +121,6 @@ def GDPpcProvider(iam, ssp, baseline_year=2010, growth_filepath='social/baseline
     return out
 
 
-def _get_best_iso_available(iso, df_this, df_anyiam, df_global):
-    """Get the highest priority data available: first data from the IAM, then from any IAM, then global."""
-
-    df = df_this.loc[df_this.iso == iso]
-    if df.shape[0] > 0:
-        return df
-
-    if iso in df_anyiam.index:
-        df = df_anyiam.loc[iso]
-        if df.shape[0] > 0:
-            return df
-
-    return df_global
-
-
 class BestGDPpcProvider(provider.BySpaceProvider):
     """
     Provider of GDP per capita (GDPpc) timeseries, selecting "best" available source
@@ -195,6 +180,19 @@ class BestGDPpcProvider(provider.BySpaceProvider):
         self.df_growth_anyiam = df.loc[(df.scenario == self.ssp)].groupby(['iso', 'year']).median()
         self.growth_global = df.loc[(df.scenario == self.ssp) & (df.model == self.iam)].groupby(['year']).median()
 
+    def _get_best_iso_available(self, iso, df_this, df_anyiam, df_global):
+        """Get the highest priority data available: first data from the IAM, then from any IAM, then global."""
+        df = df_this.loc[df_this.iso == iso]
+        if df.shape[0] > 0:
+            return df
+
+        if iso in df_anyiam.index:
+            df = df_anyiam.loc[iso]
+            if df.shape[0] > 0:
+                return df
+
+        return df_global
+
     def get_timeseries(self, hierid):
         """Return an np.array of GDPpc for the given region."""
         
@@ -211,7 +209,7 @@ class BestGDPpcProvider(provider.BySpaceProvider):
     def get_iso_timeseries(self, iso):
         """Return an np.array of GDPpc for the given ISO country."""
         # Select baseline GDPpc
-        df_baseline = _get_best_iso_available(
+        df_baseline = self._get_best_iso_available(
             iso,
             self.df_baseline_this,
             self.df_baseline_anyiam,
@@ -222,7 +220,7 @@ class BestGDPpcProvider(provider.BySpaceProvider):
             baseline = baseline.values[0]
 
         # Select growth series
-        df_growth = _get_best_iso_available(
+        df_growth = self._get_best_iso_available(
             iso,
             self.df_growth_this,
             self.df_growth_anyiam,
