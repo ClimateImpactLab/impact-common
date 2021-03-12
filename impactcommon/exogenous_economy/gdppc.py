@@ -57,8 +57,8 @@ def read_hierarchicalgdppcprovider(iam, ssp, growth_path_or_buffer, baseline_pat
         nightlights_path_or_buffer = files.sharedpath(nightlights_path_or_buffer)
 
     df = metacsv.read_csv(baseline_path_or_buffer)
-    df_growth = metacsv.read_csv(files.sharedpath(growth_path_or_buffer))
-    df_nightlights = metacsv.read_csv(files.sharedpath(nightlights_path_or_buffer))
+    df_growth = metacsv.read_csv(growth_path_or_buffer)
+    df_nightlights = metacsv.read_csv(nightlights_path_or_buffer)
 
     return HierarchicalGDPpcProvider(
         iam=iam,
