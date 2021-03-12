@@ -29,7 +29,7 @@ def support_dfs():
             "growth": np.arange(4, dtype=np.float64) + 1,
         }
     )
-    df_nightlights=pd.DataFrame(
+    df_nightlights = pd.DataFrame(
         {
             "hierid": ["fooSPAM"],
             "gdppc_ratio": [2.0],
@@ -184,7 +184,7 @@ def test_read_bestgdppcprovider_noshareddir(tmpsetup):
     np.testing.assert_array_equal(actual, goal)
 
 
-def test_GDPpcProvider(tmpsetup_shareddir):
+def test_gdppcprovider(tmpsetup_shareddir):
     """
     Smoke and integration test for legacy GDPpcProvider behavior
 
