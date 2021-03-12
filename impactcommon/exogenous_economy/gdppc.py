@@ -136,22 +136,6 @@ def _get_best_iso_available(iso, df_this, df_anyiam, df_global):
     return df_global
 
 
-def _split_baseline(df, iam, ssp, baseline_year):
-    """Split-out baseline GDPpc so can choose priority data for regional timeseries"""
-    this_df = df.loc[(df.model == iam) & (df.scenario == ssp) & (df.year == baseline_year)]
-    anyiam_df = df.loc[(df.scenario == ssp) & (df.year == baseline_year)].groupby('iso').median()
-    global_df = df.loc[(df.scenario == ssp) & (df.year == baseline_year)].median()
-    return this_df, anyiam_df, global_df
-
-
-def _split_growth(df, iam, ssp):
-    """Split-out GDPpc growth data so can choose priority data for regional timeseries"""
-    this_df = df.loc[(df.model == iam) & (df.scenario == ssp)]
-    anyiam_df = df.loc[(df.scenario == ssp)].groupby(['iso', 'year']).median()
-    global_df = df.loc[(df.scenario == ssp) & (df.model == iam)].groupby(['year']).median()
-    return this_df, anyiam_df, global_df
-
-
 class BestGDPpcProvider(provider.BySpaceProvider):
     """
     Provider of GDP per capita (GDPpc) timeseries, selecting "best" available source
@@ -195,18 +179,21 @@ class BestGDPpcProvider(provider.BySpaceProvider):
         # Need year index, but data has obs at 5-year intervals:
         df_growth['yearindex'] = np.int_((df_growth.year - self.startyear) / 5)
 
-        # Split growth and baseline data by data priority
-        self.df_baseline_this, self.df_baseline_anyiam, self.baseline_global = _split_baseline(
-            df_baseline,
-            self.iam,
-            self.ssp,
-            self.startyear
-        )
-        self.df_growth_this, self.df_growth_anyiam, self.growth_global = _split_growth(
-            df_growth,
-            self.iam,
-            self.ssp
-        )
+        self._populate_baseline_candidates(df_baseline)
+        self._populate_growth_candidates(df_growth)
+
+    def _populate_baseline_candidates(self, df):
+        """Split-out baseline GDPpc so can choose priority data for regional timeseries"""
+        match_year_ssp = (df.scenario == self.ssp) & (df.year == self.startyear)
+        self.df_baseline_this = df.loc[(df.model == self.iam) & match_year_ssp]
+        self.df_baseline_anyiam = df.loc[match_year_ssp].groupby('iso').median()
+        self.baseline_global = df.loc[match_year_ssp].median()
+
+    def _populate_growth_candidates(self, df):
+        """Split-out GDPpc growth data so can choose priority data for regional timeseries"""
+        self.df_growth_this = df.loc[(df.model == self.iam) & (df.scenario == self.ssp)]
+        self.df_growth_anyiam = df.loc[(df.scenario == self.ssp)].groupby(['iso', 'year']).median()
+        self.growth_global = df.loc[(df.scenario == self.ssp) & (df.model == self.iam)].groupby(['year']).median()
 
     def get_timeseries(self, hierid):
         """Return an np.array of GDPpc for the given region."""
