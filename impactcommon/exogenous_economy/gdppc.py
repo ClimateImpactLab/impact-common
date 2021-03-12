@@ -158,26 +158,18 @@ class HierarchicalGDPpcProvider(provider.BySpaceProvider):
         """iam and ssp should be as described in the files (e.g., iam = 'low', ssp = 'SSP3')"""
         super().__init__(iam, ssp, startyear)
         self.stopyear = stopyear
+
+        self.df_baseline_this = df_baseline.loc[(df_baseline.model == iam) & (df_baseline.scenario == ssp) & (df_baseline.year == startyear)]
+        self.df_baseline_anyiam = df_baseline.loc[(df_baseline.scenario == ssp) & (df_baseline.year == startyear)].groupby('iso').median()
+        self.baseline_global = df_baseline.loc[(df_baseline.scenario == ssp) & (df_baseline.year == startyear)].median()
+
+        # Load the growth rates, and split by priority of data
+        df_growth['yearindex'] = np.int_((df_growth.year - startyear) / 5)
+        self.df_growth_this = df_growth.loc[(df_growth.model == iam) & (df_growth.scenario == ssp)]
+        self.df_growth_anyiam = df_growth.loc[(df_growth.scenario == ssp)].groupby(['iso', 'year']).median()
+        self.growth_global = df_growth.loc[(df_growth.scenario == ssp) & (df_growth.model == iam)].groupby(['year']).median()
+
         self.df_nightlights = df_nightlights
-
-        # Need year index, but data has obs at 5-year intervals:
-        df_growth['yearindex'] = np.int_((df_growth.year - self.startyear) / 5)
-
-        self._populate_baseline_candidates(df_baseline)
-        self._populate_growth_candidates(df_growth)
-
-    def _populate_baseline_candidates(self, df):
-        """Split-out baseline GDPpc so can choose priority data for regional timeseries"""
-        match_year_ssp = (df.scenario == self.ssp) & (df.year == self.startyear)
-        self.df_baseline_this = df.loc[(df.model == self.iam) & match_year_ssp]
-        self.df_baseline_anyiam = df.loc[match_year_ssp].groupby('iso').median()
-        self.baseline_global = df.loc[match_year_ssp].median()
-
-    def _populate_growth_candidates(self, df):
-        """Split-out GDPpc growth data so can choose priority data for regional timeseries"""
-        self.df_growth_this = df.loc[(df.model == self.iam) & (df.scenario == self.ssp)]
-        self.df_growth_anyiam = df.loc[(df.scenario == self.ssp)].groupby(['iso', 'year']).median()
-        self.growth_global = df.loc[(df.scenario == self.ssp) & (df.model == self.iam)].groupby(['year']).median()
 
     def _get_best_iso_available(self, iso, df_this, df_anyiam, df_global):
         """Get the highest priority data available: first data from the IAM, then from any IAM, then global."""
@@ -243,16 +235,16 @@ if __name__ == '__main__':
 
     time0 = time.time()
     provider = GDPpcProvider('low', 'SSP3')
-    df = metacsv.read_csv(files.sharedpath("regions/hierarchy_metacsv.csv"))
+    df_baseline = metacsv.read_csv(files.sharedpath("regions/hierarchy_metacsv.csv"))
     time1 = time.time()
     print("Load time: %s seconds" % (time1 - time0))
 
-    for ii in np.where(df.is_terminal)[0]:
-        xx = provider.get_timeseries(df.iloc[ii, 0])
+    for ii in np.where(df_baseline.is_terminal)[0]:
+        xx = provider.get_timeseries(df_baseline.iloc[ii, 0])
     time2 = time.time()
     print("First pass: %s seconds" % (time2 - time1))
 
-    for ii in np.where(df.is_terminal)[0]:
-        xx = provider.get_timeseries(df.iloc[ii, 0])
+    for ii in np.where(df_baseline.is_terminal)[0]:
+        xx = provider.get_timeseries(df_baseline.iloc[ii, 0])
     time3 = time.time()
     print("Second pass: %s seconds" % (time3 - time2))
