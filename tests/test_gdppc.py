@@ -14,8 +14,8 @@ def support_dfs():
     baseline_df = pd.DataFrame(
         {
             "year": [2010, 2010, 2010],
-            "model": [ "low", "low", "low"],  # "iam"
-            "scenario": [ "SSP3", "SSP3", "SSP4"],  # "ssp"
+            "model": ["low", "low", "low"],  # "iam"
+            "scenario": ["SSP3", "SSP3", "SSP4"],  # "ssp"
             "iso": ["foo", "bar", "foo"],
             "value": np.arange(3, dtype=np.float64) + 1,
         }
@@ -31,8 +31,8 @@ def support_dfs():
     )
     df_nightlights=pd.DataFrame(
         {
-            "hierid" : ["fooSPAM"],
-            "gdppc_ratio" : [2.0],
+            "hierid": ["fooSPAM"],
+            "gdppc_ratio": [2.0],
         }
     )
     return baseline_df, growth_df, df_nightlights
@@ -214,12 +214,12 @@ def test_get_best_iso_available():
     [
         pytest.param(
             "fooSPAM",
-            np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.]),
+            np.array([2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.]),
             id="hierid in nightlights",
         ),
         pytest.param(
             "fooEGGS",
-            np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.]),
+            np.array([1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.]),
             id="hierid not in nightlights",
         ),
     ],
@@ -249,7 +249,7 @@ def test_bestgdppcprovider_get_iso_timeseries(support_dfs):
     """Simple test for BestGDPpcProvider.get_iso_timeseries"""
     baseline_df, growth_df, df_nightlights = support_dfs
 
-    goal = np.array([ 1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
+    goal = np.array([1.,  2.,  4.,  8., 16., 32., 32., 32., 32., 32., 32.])
 
     testprovider = gdppc.BestGDPpcProvider(
         iam="foo",
@@ -273,7 +273,7 @@ def test_read_bestgdppcprovider_shareddir(tmpsetup_shareddir):
     """
     input_iam = "low"
     input_ssp = "SSP3"
-    goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
+    goal = np.array([2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
     testprovider = gdppc.read_bestgdppcprovider(
         iam=input_iam, ssp=input_ssp,
         growth_path_or_buffer='social/baselines/gdppc-growth.csv',
@@ -297,7 +297,7 @@ def test_read_bestgdppcprovider_noshareddir(tmpsetup):
 
     input_iam = "low"
     input_ssp = "SSP3"
-    goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
+    goal = np.array([2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
     testprovider = gdppc.read_bestgdppcprovider(
         iam=input_iam,
         ssp=input_ssp,
@@ -319,7 +319,7 @@ def test_GDPpcProvider(tmpsetup_shareddir):
     """
     input_iam = "low"
     input_ssp = "SSP3"
-    goal = np.array([ 2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
+    goal = np.array([2.,  4.,  8., 16., 32., 64., 64., 64., 64., 64., 64.])
     testprovider = gdppc.GDPpcProvider(iam=input_iam, ssp=input_ssp, stopyear=2020)
     actual = testprovider.get_timeseries(hierid="fooSPAM")
     np.testing.assert_array_equal(actual, goal)
