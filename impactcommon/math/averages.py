@@ -30,8 +30,16 @@ def compiled_bucket_updater(curlen, length, sumval, value):
     return curlen, length, sumval
 
 @nb.njit
-def compiled_npdot(x,y):
-    return np.dot(x,y)
+def compiled_kernelaverager_get(write_index, kernel, values):
+    if write_index is None or write_index == 0:
+        subkernel = kernel[-len(values):]
+        out = np.dot(subkernel, values) / np.sum(subkernel)
+    else:
+        recentkernel = kernel[-write_index:]
+        olderkernel = kernel[:-write_index]
+        out = np.dot(recentkernel, values[:write_index]) + np.dot(olderkernel, values[write_index:])
+    return out
+
 
 class RunningStatistic(object):
     """
@@ -109,14 +117,7 @@ class KernelAverager(MemoryAverager):
         self.kernel = compiled_npflipud(np.array(kernel) / compiled_sum(kernel))
     
     def get(self):
-        if self.write_index is None or self.write_index == 0:
-            subkernel = self.kernel[-len(self.values):]
-            out = compiled_npdot(subkernel, self.values) / compiled_sum(subkernel)
-        else:
-            recentkernel = self.kernel[-self.write_index:]
-            olderkernel = self.kernel[:-self.write_index]
-            out = compiled_npdot(recentkernel, self.values[:self.write_index]) + compiled_npdot(olderkernel, self.values[self.write_index:])
-        return out
+        return compiled_kernelaverager_get(self.write_index, self.kernel, self.values)
 
     def get_calculation(self):
         if self.write_index is None or self.write_index == 0:
