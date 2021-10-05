@@ -1,4 +1,13 @@
 import numpy as np
+from numba import njit
+
+@njit 
+def compiled_npmean(x):
+    return np.mean(x).item()
+
+@njit 
+def compiled_npmedian(x):
+    return np.median(x).item()
 
 class RunningStatistic(object):
     """
@@ -23,10 +32,10 @@ class MemoryAverager(RunningStatistic):
         super(MemoryAverager, self).__init__(length)
 
         if len(values) >= length:
-            self.values = np.array(values[-length:])
+            self.values = np.array(values[-length:], dtype=np.float64)
             self.write_index = 0 # overwrite at this location next time
         else:
-            self.values = list(values) # Keep as a list
+            self.values = np.array(values, dtype=np.float64)
             self.write_index = None # append next time
 
     def update(self, value):
@@ -34,9 +43,8 @@ class MemoryAverager(RunningStatistic):
             self.values[self.write_index] = value
             self.write_index = (self.write_index + 1) % self.length
         else:
-            self.values.append(value)
+            self.values = np.append(self.values, value) 
             if len(self.values) == self.length:
-                self.values = np.array(self.values)
                 self.write_index = 0
 
 class MeanAverager(MemoryAverager):
@@ -44,14 +52,14 @@ class MeanAverager(MemoryAverager):
     Simple mean running average.
     """
     def get(self):
-        return np.mean(self.values).item()
+        return compiled_npmean(self.values)
 
 class MedianAverager(MemoryAverager):
     """
     Simple median running average.
     """
     def get(self):
-        return np.median(self.values).item()
+        return compiled_npmedian(self.values)
 
 class BucketAverager(RunningStatistic):
     """
@@ -130,7 +138,7 @@ def translate(cls, length, data):
 if __name__ == '__main__':
     for cls in [MeanAverager, MedianAverager, BucketAverager, KernelMeanAverager, BartlettAverager]:
         print(cls)
-        avg = cls(list(range(4)), 5)
+        avg = cls([0, 1, 2, 3], 5)
         print(avg.get(), (0 + 1 + 2 + 3) / 4.)
         avg.update(4)
         print(avg.get(), (0 + 1 + 2 + 3 + 4) / 5.)
