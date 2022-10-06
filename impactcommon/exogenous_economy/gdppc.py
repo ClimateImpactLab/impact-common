@@ -161,7 +161,7 @@ class HierarchicalGDPpcProvider(provider.BySpaceProvider):
 
         self.df_baseline_this = df_baseline.loc[(df_baseline.model == iam) & (df_baseline.scenario == ssp) & (df_baseline.year == startyear)]
         self.df_baseline_anyiam = df_baseline.loc[(df_baseline.scenario == ssp) & (df_baseline.year == startyear)].groupby('iso').median()
-        self.baseline_global = df_baseline.loc[(df_baseline.scenario == ssp) & (df_baseline.year == startyear)].median()
+        self.baseline_global = df_baseline.loc[(df_baseline.scenario == ssp) & (df_baseline.year == startyear)].select_dtypes("number").median()
 
         # Load the growth rates, and split by priority of data
         df_growth['yearindex'] = np.int_((df_growth.year - startyear) / 5)
